@@ -1,5 +1,8 @@
 import { useState } from "react";
 import API from "../services/api";
+import WeeklyView from "../components/expense/WeeklyView";
+import HistoryView from "../components/expense/HistoryView";
+import MonthlyView from "../components/expense/MonthlyView";
 
 const categories = [
   "FOOD",
@@ -18,7 +21,14 @@ function Tracker() {
     type: "FOOD",
     description: ""
   });
+const [editingExpense, setEditingExpense] = useState(null);
 
+const [editForm, setEditForm] = useState({
+  date: "",
+  amount: "",
+  type: "FOOD",
+  description: ""
+});
   const [data, setData] = useState(null);
 
   const handleAdd = async () => {
@@ -55,9 +65,103 @@ function Tracker() {
     setView("history");
   };
 
-  return (
-    <div className="p-4 max-w-md mx-auto space-y-5">
+  const openEdit = (expense) => {
+  setEditingExpense(expense);
 
+  setEditForm({
+    date: expense.date,
+    amount: expense.amount,
+    type: expense.type,
+    description: expense.description
+  });
+};
+const [theme, setTheme] = useState(
+  localStorage.getItem("theme") || "dark"
+);
+
+  const handleDelete = async (id) => {
+  try {
+    await API.delete(`/expenses/${id}`);
+
+    setData((prev) =>
+      prev.filter((expense) => expense.id !== id)
+    );
+
+  } catch (e) {
+    alert("Failed to delete expense");
+  }
+};
+
+const handleUpdate = async () => {
+  try {
+
+    await API.put(
+      `/expenses/${editingExpense.id}`,
+      editForm
+    );
+
+    const updatedHistory = data.map((e) =>
+      e.id === editingExpense.id
+        ? { ...e, ...editForm }
+        : e
+    );
+
+    setData(updatedHistory);
+
+    setEditingExpense(null);
+
+  } catch (e) {
+    alert("Failed to update expense");
+  }
+};
+const [displayMode, setDisplayMode] = useState("table");
+const changeTheme = (newTheme) => {
+  setTheme(newTheme);
+  localStorage.setItem("theme", newTheme);
+};
+
+return (
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor:
+          theme === "dark"
+            ? "black"
+            : theme === "light"
+            ? "white"
+            : "gray",
+        color:
+          theme === "light"
+            ? "black"
+            : "white"
+      }}
+    >
+  <h1>Current Theme: {theme}</h1>
+
+<div className="flex gap-2 justify-end">
+
+  <button
+    onClick={() => changeTheme("light")}
+    className="px-3 py-1 rounded bg-yellow-400 text-black"
+  >
+    ☀️
+  </button>
+
+  <button
+    onClick={() => changeTheme("dark")}
+    className="px-3 py-1 rounded bg-black text-white border"
+  >
+    🌙
+  </button>
+
+  <button
+    onClick={() => changeTheme("grey")}
+    className="px-3 py-1 rounded bg-gray-500 text-white"
+  >
+    ⚫
+  </button>
+
+</div>
       {/* ---------------- FORM ---------------- */}
       {view === "form" && (
         <>
@@ -159,115 +263,120 @@ function Tracker() {
         </div>
       )}
 
-      {/* ---------------- WEEKLY / MONTHLY ---------------- */}
-      {(view === "weekly" || view === "monthly") && data && (
-        <div className="space-y-4">
-
-          {/* Expense List */}
-          <div>
-            <h2 className="text-lg font-semibold border-b pb-1">
-              Expenses
-            </h2>
-
-            {data.expenses.map((e) => (
-              <div
-                key={e.id}
-                className="bg-white shadow rounded-xl p-3 flex justify-between mt-2"
-              >
-                <div>
-                  <p className="font-semibold">{e.type}</p>
-                  <p className="text-sm text-gray-500">
-                    {e.description}
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="font-medium">₹{e.amount}</p>
-                  <p className="text-xs text-gray-500">
-                    {e.date}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Category */}
-          <div>
-            <h2 className="text-lg font-semibold border-b pb-1">
-              Category Analysis
-            </h2>
-
-            {Object.entries(data.categorySummary).map(([k, v]) => (
-              <p key={k} className="text-sm mt-1">
-                {k} → ₹{v}
-              </p>
-            ))}
-          </div>
-
-          {/* Comparison */}
-          <div>
-            <h2 className="text-lg font-semibold border-b pb-1">
-              Comparison
-            </h2>
-
-            <p>Total: ₹{data.total}</p>
-            <p>
-              {view === "weekly" ? "Last Week" : "Last Month"}: ₹
-              {view === "weekly"
-                ? data.lastWeekTotal
-                : data.lastMonthTotal}
-            </p>
-            <p className="font-medium">
-              Difference: ₹{data.difference}
-            </p>
-          </div>
-
-          <button
-            onClick={() => setView("menu")}
-            className="text-blue-500 text-sm"
-          >
-            ← Back
-          </button>
-        </div>
+    
+      {/* ---------------- WEEKLY ---------------- */}
+      {view === "weekly" && data && (
+        <WeeklyView
+          data={data}
+          displayMode={displayMode}
+          setDisplayMode={setDisplayMode}
+          onBack={() => setView("menu")}
+        />
       )}
+   {view === "monthly" && data && (
+     <MonthlyView
+       data={data}
+       displayMode={displayMode}
+       setDisplayMode={setDisplayMode}
+       onBack={() => setView("menu")}
+     />
+   )}
 
-      {/* ---------------- HISTORY ---------------- */}
-      {view === "history" && data && (
-        <div>
+{view === "history" && data && (
+  <HistoryView
+    data={data}
+    displayMode={displayMode}
+    setDisplayMode={setDisplayMode}
+    onBack={() => setView("menu")}
+    onDelete={handleDelete}
+    onEdit={openEdit}
+  />
+)}
 
-          <h2 className="text-lg font-semibold border-b pb-1">
-            All Expenses
-          </h2>
+{/* ---------------- EDIT MODAL ---------------- */}
+{editingExpense && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
 
-          {data.map((e) => (
-            <div
-              key={e.id}
-              className="bg-white shadow rounded-xl p-3 flex justify-between mt-2"
-            >
-              <div>
-                <p className="font-semibold">{e.type}</p>
-                <p className="text-sm text-gray-500">
-                  {e.description}
-                </p>
-              </div>
+    <div className="bg-white rounded-2xl p-5 w-[90%] max-w-md space-y-3">
 
-              <div className="text-right">
-                <p className="font-medium">₹{e.amount}</p>
-                <p className="text-xs text-gray-500">
-                  {e.date}
-                </p>
-              </div>
-            </div>
-          ))}
+      <h2 className="text-xl font-bold">
+        Edit Expense
+      </h2>
 
-          <button
-            onClick={() => setView("menu")}
-            className="text-blue-500 text-sm mt-3"
-          >
-            ← Back
-          </button>
-        </div>
-      )}
+      <input
+        type="date"
+        value={editForm.date}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            date: e.target.value
+          })
+        }
+        className="border rounded-lg p-2 w-full"
+      />
+
+      <input
+        type="number"
+        value={editForm.amount}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            amount: e.target.value
+          })
+        }
+        className="border rounded-lg p-2 w-full"
+      />
+
+      <select
+        value={editForm.type}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            type: e.target.value
+          })
+        }
+        className="border rounded-lg p-2 w-full"
+      >
+        <option>FOOD</option>
+        <option>TRAVEL</option>
+        <option>MOBILE</option>
+        <option>LENT</option>
+        <option>ENTERTAINMENT</option>
+        <option>OTHER</option>
+      </select>
+
+      <input
+        type="text"
+        value={editForm.description}
+        onChange={(e) =>
+          setEditForm({
+            ...editForm,
+            description: e.target.value
+          })
+        }
+        className="border rounded-lg p-2 w-full"
+      />
+
+      <div className="flex gap-2">
+
+        <button
+          onClick={() => setEditingExpense(null)}
+          className="bg-gray-300 px-4 py-2 rounded-lg w-full"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleUpdate}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
+        >
+          Save
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
