@@ -1,6 +1,10 @@
-export default function MonthlyView({ data, onBack }) {
+export default function MonthlyView({
+  data,
+  onBack,
+  displayMode,
+  setDisplayMode
+}) {
   const downloadCSV = () => {
-
     const headers =
       "Date,Type,Description,Amount\n";
 
@@ -35,105 +39,237 @@ export default function MonthlyView({ data, onBack }) {
 
     document.body.removeChild(link);
   };
-  return (
-    <div className="space-y-4">
 
-      {/* Expense List */}
-      <div>
+  // ================= TABLE VIEW =================
+  if (displayMode === "table") {
+    return (
+      <div className="space-y-4">
+
         <h2 className="text-lg font-semibold border-b pb-1">
           Monthly Expenses
         </h2>
-<div className="overflow-x-auto mt-4">
-  <table className="w-full border-collapse border border-gray-500">
 
-    <thead>
-      <tr className="bg-gray-800 text-white">
+        <div className="flex gap-3 items-center mb-3">
 
-        <th className="border border-gray-300 p-2">
-          Date
-        </th>
+          <button
+            onClick={downloadCSV}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+          >
+            Download Monthly Report
+          </button>
 
-        <th className="border border-gray-300 p-2">
-          Type
-        </th>
+          <select
+            value={displayMode}
+            onChange={(e) =>
+              setDisplayMode(e.target.value)
+            }
+            className="border rounded-lg p-2"
+          >
+            <option value="table">
+              📋 Table
+            </option>
 
-        <th className="border border-gray-300 p-2">
-          Description
-        </th>
+            <option value="card">
+              📦 Card
+            </option>
+          </select>
 
-        <th className="border border-gray-300 p-2">
-          Amount
-        </th>
+        </div>
 
-      </tr>
-    </thead>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-500">
 
-    <tbody>
-      {data.expenses.map((e) => (
-        <tr key={e.id}>
+            <thead>
+              <tr className="bg-gray-800 text-white">
 
-          <td className="border border-gray-500 p-2">
-            {e.date}
-          </td>
+                <th className="border border-gray-300 p-2">
+                  Date
+                </th>
 
-          <td className="border border-gray-500 p-2">
-            {e.type}
-          </td>
+                <th className="border border-gray-300 p-2">
+                  Type
+                </th>
 
-          <td className="border border-gray-500 p-2">
-            {e.description}
-          </td>
+                <th className="border border-gray-300 p-2">
+                  Description
+                </th>
 
-          <td className="border border-gray-500 p-2 text-right">
-            ₹{e.amount}
-          </td>
+                <th className="border border-gray-300 p-2">
+                  Amount
+                </th>
 
-        </tr>
-      ))}
-    </tbody>
+              </tr>
+            </thead>
 
-  </table>
-</div>
+            <tbody>
+              {data.expenses.map((e) => (
+                <tr key={e.id}>
+
+                  <td className="border border-gray-500 p-2">
+                    {e.date}
+                  </td>
+
+                  <td className="border border-gray-500 p-2">
+                    {e.type}
+                  </td>
+
+                  <td className="border border-gray-500 p-2">
+                    {e.description}
+                  </td>
+
+                  <td className="border border-gray-500 p-2 text-right">
+                    ₹{e.amount}
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold border-b pb-1">
+            Category Analysis
+          </h2>
+
+          {Object.entries(data.categorySummary).map(
+            ([k, v]) => (
+              <p key={k}>
+                {k} → ₹{v}
+              </p>
+            )
+          )}
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold border-b pb-1">
+            Comparison
+          </h2>
+
+          <p>Total: ₹{data.total}</p>
+
+          <p>
+            Last Month: ₹{data.lastMonthTotal}
+          </p>
+
+          <p className="font-medium">
+            Difference: ₹{data.difference}
+          </p>
+        </div>
+
+        <button
+          onClick={onBack}
+          className="text-blue-500"
+        >
+          ← Back
+        </button>
+
+      </div>
+    );
+  }
+
+  // ================= CARD VIEW =================
+  return (
+    <div className="space-y-4">
+
+      <h2 className="text-lg font-semibold border-b pb-1">
+        Monthly Expenses
+      </h2>
+
+      <div className="flex gap-3 items-center mb-3">
+
+        <button
+          onClick={downloadCSV}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+        >
+          Download Monthly Report
+        </button>
+
+        <select
+          value={displayMode}
+          onChange={(e) =>
+            setDisplayMode(e.target.value)
+          }
+          className="border rounded-lg p-2"
+        >
+          <option value="table">
+            📋 Table
+          </option>
+
+          <option value="card">
+            📦 Card
+          </option>
+        </select>
+
       </div>
 
-      {/* Category */}
+      {data.expenses.map((e) => (
+        <div
+          key={e.id}
+          className="bg-white shadow rounded-xl p-3 flex justify-between"
+        >
+
+          <div>
+            <p className="font-semibold">
+              {e.type}
+            </p>
+
+            <p>
+              {e.description}
+            </p>
+          </div>
+
+          <div className="text-right">
+            <p>
+              ₹{e.amount}
+            </p>
+
+            <p>
+              {e.date}
+            </p>
+          </div>
+
+        </div>
+      ))}
+
       <div>
         <h2 className="text-lg font-semibold border-b pb-1">
           Category Analysis
         </h2>
 
-        {Object.entries(data.categorySummary).map(([k, v]) => (
-          <p key={k} className="text-sm mt-1">
-            {k} → ₹{v}
-          </p>
-        ))}
+        {Object.entries(data.categorySummary).map(
+          ([k, v]) => (
+            <p key={k}>
+              {k} → ₹{v}
+            </p>
+          )
+        )}
       </div>
 
-      {/* Comparison */}
       <div>
         <h2 className="text-lg font-semibold border-b pb-1">
           Comparison
         </h2>
 
         <p>Total: ₹{data.total}</p>
-        <p>Last Month: ₹{data.lastMonthTotal}</p>
+
+        <p>
+          Last Month: ₹{data.lastMonthTotal}
+        </p>
 
         <p className="font-medium">
           Difference: ₹{data.difference}
         </p>
       </div>
-<button
-  onClick={downloadCSV}
-  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
->
-  Download Monthly Report
-</button>
+
       <button
         onClick={onBack}
-        className="text-blue-500 text-sm"
+        className="text-blue-500"
       >
         ← Back
       </button>
+
     </div>
   );
 }

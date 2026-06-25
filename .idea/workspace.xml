@@ -5,11 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="396f5a6c-dc09-4376-bc19-87dc8d39ff75" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/exportCsv.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/HistoryView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/HistoryView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/MonthlyView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/MonthlyView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/WeeklyView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/WeeklyView.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/Tracker.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/Tracker.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +24,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;KartikPatgar15&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/KartikPatgar15/SpendWise.git&quot;,
+    &quot;accountId&quot;: &quot;f35cd40b-42e2-403b-951d-37eadb3b4abb&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -28,18 +45,18 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "K:/Project",
-    "settings.editor.selected.configurable": "preferences.keymap"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;K:/Project&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

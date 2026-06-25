@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { exportToCSV } from "../../utils/exportCsv";
 
 export default function HistoryView({
   data,
@@ -39,29 +40,42 @@ export default function HistoryView({
           All Expenses
         </h2>
 
-        <div style={{ margin: "10px 0" }}>
-          <label>Display: </label>
+        <div className="flex gap-3 items-center mb-3">
+          <button
+            onClick={() =>
+              exportToCSV(
+                filteredData,
+                "expense-history.csv"
+              )
+            }
+            className="bg-green-500 text-white px-3 py-2 rounded-lg"
+          >
+            ⬇ Download CSV
+          </button>
 
           <select
             value={displayMode}
             onChange={(e) => setDisplayMode(e.target.value)}
+            className="border rounded-lg p-2"
           >
             <option value="table">📋 Table</option>
             <option value="card">📦 Card</option>
           </select>
         </div>
 
-        <div className="flex gap-2 mt-3 mb-4">
+        <div className="flex gap-2 mb-3">
           <input
             type="text"
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="border rounded-lg p-2"
           />
 
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
+            className="border rounded-lg p-2"
           >
             <option value="ALL">ALL</option>
             <option value="FOOD">FOOD</option>
@@ -72,40 +86,50 @@ export default function HistoryView({
             <option value="OTHER">OTHER</option>
           </select>
         </div>
+<div className="overflow-x-auto">
+                      <table className="w-full border-collapse border border-gray-500">
+                        <thead>
+                        <tr className="bg-gray-200 text-black">cd
+                            <th className="border border-gray-500 p-2">Date</th>
+                            <th className="border border-gray-500 p-2">Type</th>
+                            <th className="border border-gray-500 p-2">Description</th>
+                            <th className="border border-gray-500 p-2">Amount</th>
+                            <th className="border border-gray-500 p-2">Actions</th>
+                          </tr>
+                        </thead>
 
-        <table border="1" width="100%">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Description</th>
-              <th>Amount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+                        <tbody>
+                          {filteredData.map((e) => (
+                            <tr key={e.id}>
+                              <td className="border border-gray-500 p-2">{e.date}</td>
+                              <td className="border border-gray-500 p-2">{e.type}</td>
+                              <td className="border border-gray-500 p-2">{e.description}</td>
+                              <td className="border border-gray-500 p-2">₹{e.amount}</td>
 
-          <tbody>
-            {filteredData.map((e) => (
-              <tr key={e.id}>
-                <td>{e.date}</td>
-                <td>{e.type}</td>
-                <td>{e.description}</td>
-                <td>₹{e.amount}</td>
-                <td>
-                  <button onClick={() => onEdit(e)}>
-                    Edit
-                  </button>
+                              <td className="border border-gray-500 p-2">
+                                <button
+                                  onClick={() => onEdit(e)}
+                                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                                >
+                                  Edit
+                                </button>
 
-                  <button onClick={() => onDelete(e.id)}>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button onClick={onBack}>
+                                <button
+                                  onClick={() => onDelete(e.id)}
+                                  className="bg-red-500 text-white px-2 py-1 rounded"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+        <button
+          onClick={onBack}
+          className="mt-3 text-blue-500"
+        >
           ← Back
         </button>
       </div>
@@ -119,29 +143,42 @@ export default function HistoryView({
         All Expenses
       </h2>
 
-      <div style={{ margin: "10px 0" }}>
-        <label>Display: </label>
+      <div className="flex gap-3 items-center mb-3">
+        <button
+          onClick={() =>
+            exportToCSV(
+              filteredData,
+              "expense-history.csv"
+            )
+          }
+          className="bg-green-500 text-white px-3 py-2 rounded-lg"
+        >
+          ⬇ Download CSV
+        </button>
 
         <select
           value={displayMode}
           onChange={(e) => setDisplayMode(e.target.value)}
+          className="border rounded-lg p-2"
         >
           <option value="table">📋 Table</option>
           <option value="card">📦 Card</option>
         </select>
       </div>
 
-      <div className="flex gap-2 mt-3 mb-4">
+      <div className="flex gap-2 mb-3">
         <input
           type="text"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          className="border rounded-lg p-2"
         />
 
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
+          className="border rounded-lg p-2"
         >
           <option value="ALL">ALL</option>
           <option value="FOOD">FOOD</option>
@@ -159,7 +196,7 @@ export default function HistoryView({
           className="bg-white shadow rounded-xl p-3 flex justify-between mt-2"
         >
           <div>
-            <p>{e.type}</p>
+            <p className="font-semibold">{e.type}</p>
             <p>{e.description}</p>
           </div>
 
@@ -167,18 +204,27 @@ export default function HistoryView({
             <p>₹{e.amount}</p>
             <p>{e.date}</p>
 
-            <button onClick={() => onEdit(e)}>
+            <button
+              onClick={() => onEdit(e)}
+              className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+            >
               Edit
             </button>
 
-            <button onClick={() => onDelete(e.id)}>
+            <button
+              onClick={() => onDelete(e.id)}
+              className="bg-red-500 text-white px-2 py-1 rounded"
+            >
               Delete
             </button>
           </div>
         </div>
       ))}
 
-      <button onClick={onBack}>
+      <button
+        onClick={onBack}
+        className="mt-3 text-blue-500"
+      >
         ← Back
       </button>
     </div>

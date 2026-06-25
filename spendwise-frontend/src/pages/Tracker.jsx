@@ -12,7 +12,6 @@ const categories = [
   "ENTERTAINMENT",
   "OTHER"
 ];
-
 function Tracker() {
   const [view, setView] = useState("form");
   const [expense, setExpense] = useState({
@@ -114,7 +113,14 @@ const handleUpdate = async () => {
     alert("Failed to update expense");
   }
 };
-const [displayMode, setDisplayMode] = useState("table");
+const [displayMode, setDisplayMode] = useState(
+  localStorage.getItem("displayMode") || "table"
+);
+
+const changeDisplayMode = (mode) => {
+  setDisplayMode(mode);
+  localStorage.setItem("displayMode", mode);
+};
 const changeTheme = (newTheme) => {
   setTheme(newTheme);
   localStorage.setItem("theme", newTheme);
@@ -264,29 +270,29 @@ return (
       )}
 
     
-      {/* ---------------- WEEKLY ---------------- */}
+            {/* ---------------- WEEKLY ---------------- */}
       {view === "weekly" && data && (
         <WeeklyView
           data={data}
           displayMode={displayMode}
-          setDisplayMode={setDisplayMode}
+          setDisplayMode={changeDisplayMode}
           onBack={() => setView("menu")}
         />
       )}
    {view === "monthly" && data && (
-     <MonthlyView
-       data={data}
-       displayMode={displayMode}
-       setDisplayMode={setDisplayMode}
-       onBack={() => setView("menu")}
-     />
+  <MonthlyView
+    data={data}
+    displayMode={displayMode}
+    setDisplayMode={changeDisplayMode}
+    onBack={() => setView("menu")}
+  />
    )}
 
 {view === "history" && data && (
   <HistoryView
     data={data}
     displayMode={displayMode}
-    setDisplayMode={setDisplayMode}
+    setDisplayMode={changeDisplayMode}
     onBack={() => setView("menu")}
     onDelete={handleDelete}
     onEdit={openEdit}
@@ -295,7 +301,7 @@ return (
 
 {/* ---------------- EDIT MODAL ---------------- */}
 {editingExpense && (
-  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div className="fixed insetcurre-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
 
     <div className="bg-white rounded-2xl p-5 w-[90%] max-w-md space-y-3">
 
