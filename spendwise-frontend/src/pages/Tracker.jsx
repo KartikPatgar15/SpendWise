@@ -3,7 +3,7 @@ import API from "../services/api";
 import WeeklyView from "../components/expense/WeeklyView";
 import HistoryView from "../components/expense/HistoryView";
 import MonthlyView from "../components/expense/MonthlyView";
-
+import DashboardView from "../components/expense/DashboardView";
 const categories = [
   "FOOD",
   "TRAVEL",
@@ -125,7 +125,13 @@ const changeTheme = (newTheme) => {
   setTheme(newTheme);
   localStorage.setItem("theme", newTheme);
 };
+const fetchDashboard = async () => {
+  const res = await API.get("/expenses/history");
 
+  setData(res.data);
+
+  setView("dashboard");
+};
 return (
     <div
       style={{
