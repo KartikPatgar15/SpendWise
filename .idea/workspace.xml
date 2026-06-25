@@ -5,11 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="396f5a6c-dc09-4376-bc19-87dc8d39ff75" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/DashboardView.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/analytics.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/expenseHelpers.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/exportPdf.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/CategoryPieChart.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/MonthlyTrendChart.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/WeeklyTrendChart.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/BudgetProgressBar.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/DateRangePicker.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/DisplayModeSelector.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/EmptyState.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/StatCard.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/ThemeSelector.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/config/themeConfig.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useAnalytics.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useBudget.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useDashboard.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useDateRange.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useExpenses.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useTheme.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/AnalyticsPage.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/services/ budgetService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spendwise-frontend/src/services/dashboardService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/BottomNav.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/BottomNav.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/DashboardView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/DashboardView.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/Tracker.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/Tracker.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/utils/analytics.js" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/analytics.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/utils/expenseHelpers.js" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/expenseHelpers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/utils/exportPdf.js" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/utils/exportPdf.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +79,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="K:\Project\spendwise-frontend\src\components\charts" />
       <recent name="K:\Project\spendwise-frontend\src\components" />
     </key>
   </component>

@@ -1,232 +1,142 @@
+// src/pages/Tracker.jsx
+// EDIT: Replaced inline state with useTheme() + useExpenses() hooks.
+// All existing view-switching, form, edit-modal behavior is PRESERVED.
+// DashboardView now receives tokens prop for theme support.
+
 import { useState } from "react";
-import API from "../services/api";
+import { useTheme } from "../hooks/useTheme";
+import { useExpenses } from "../hooks/useExpenses";
 import WeeklyView from "../components/expense/WeeklyView";
 import HistoryView from "../components/expense/HistoryView";
 import MonthlyView from "../components/expense/MonthlyView";
 import DashboardView from "../components/expense/DashboardView";
-const categories = [
-  "FOOD",
-  "TRAVEL",
-  "MOBILE",
-  "LENT",
-  "ENTERTAINMENT",
-  "OTHER"
-];
+import ThemeSelector from "../components/ui/ThemeSelector";
+
+const categories = ["FOOD", "TRAVEL", "MOBILE", "LENT", "ENTERTAINMENT", "OTHER"];
+
 function Tracker() {
+  const { theme, setTheme, tokens } = useTheme();
+
+  const {
+    expenses,
+    weeklyData,
+    monthlyData,
+    addExpense,
+    deleteExpense,
+    updateExpense,
+    fetchHistory,
+    fetchWeekly,
+    fetchMonthly,
+    setExpenses,
+  } = useExpenses();
+
   const [view, setView] = useState("form");
-  const [expense, setExpense] = useState({
-    date: "",
-    amount: "",
-    type: "FOOD",
-    description: ""
-  });
-const [editingExpense, setEditingExpense] = useState(null);
+  const [expense, setExpense] = useState({ date: "", amount: "", type: "FOOD", description: "" });
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [editForm, setEditForm] = useState({ date: "", amount: "", type: "FOOD", description: "" });
+  const [displayMode, setDisplayMode] = useState(
+    () => localStorage.getItem("displayMode") || "table"
+  );
 
-const [editForm, setEditForm] = useState({
-  date: "",
-  amount: "",
-  type: "FOOD",
-  description: ""
-});
-  const [data, setData] = useState(null);
-
-  const handleAdd = async () => {
-    await API.post("/expenses", {
-      ...expense,
-      amount: Number(expense.amount)
-    });
-
-    alert("Expense added ✅");
-
-    setExpense({
-      date: "",
-      amount: "",
-      type: "FOOD",
-      description: ""
-    });
+  const changeDisplayMode = (mode) => {
+    setDisplayMode(mode);
+    localStorage.setItem("displayMode", mode);
   };
 
-  const fetchWeekly = async () => {
-    const res = await API.get("/expenses/weekly");
-    setData(res.data);
+  const handleAdd = async () => {
+    await addExpense(expense);
+    alert("Expense added ✅");
+    setExpense({ date: "", amount: "", type: "FOOD", description: "" });
+  };
+
+  const handleFetchWeekly = async () => {
+    await fetchWeekly();
     setView("weekly");
   };
 
-  const fetchMonthly = async () => {
-    const res = await API.get("/expenses/monthly");
-    setData(res.data);
+  const handleFetchMonthly = async () => {
+    await fetchMonthly();
     setView("monthly");
   };
 
-  const fetchHistory = async () => {
-    const res = await API.get("/expenses/history");
-    setData(res.data);
+  const handleFetchHistory = async () => {
+    await fetchHistory();
     setView("history");
   };
 
-  const openEdit = (expense) => {
-  setEditingExpense(expense);
+  const handleFetchDashboard = async () => {
+    await fetchHistory();
+    setView("dashboard");
+  };
 
-  setEditForm({
-    date: expense.date,
-    amount: expense.amount,
-    type: expense.type,
-    description: expense.description
-  });
-};
-const [theme, setTheme] = useState(
-  localStorage.getItem("theme") || "dark"
-);
+  const openEdit = (exp) => {
+    setEditingExpense(exp);
+    setEditForm({ date: exp.date, amount: exp.amount, type: exp.type, description: exp.description });
+  };
 
   const handleDelete = async (id) => {
-  try {
-    await API.delete(`/expenses/${id}`);
+    try {
+      await deleteExpense(id);
+    } catch {
+      alert("Failed to delete expense");
+    }
+  };
 
-    setData((prev) =>
-      prev.filter((expense) => expense.id !== id)
-    );
+  const handleUpdate = async () => {
+    try {
+      await updateExpense(editingExpense.id, editForm);
+      setEditingExpense(null);
+    } catch {
+      alert("Failed to update expense");
+    }
+  };
 
-  } catch (e) {
-    alert("Failed to delete expense");
-  }
-};
-
-const handleUpdate = async () => {
-  try {
-
-    await API.put(
-      `/expenses/${editingExpense.id}`,
-      editForm
-    );
-
-    const updatedHistory = data.map((e) =>
-      e.id === editingExpense.id
-        ? { ...e, ...editForm }
-        : e
-    );
-
-    setData(updatedHistory);
-
-    setEditingExpense(null);
-
-  } catch (e) {
-    alert("Failed to update expense");
-  }
-};
-const [displayMode, setDisplayMode] = useState(
-  localStorage.getItem("displayMode") || "table"
-);
-
-const changeDisplayMode = (mode) => {
-  setDisplayMode(mode);
-  localStorage.setItem("displayMode", mode);
-};
-const changeTheme = (newTheme) => {
-  setTheme(newTheme);
-  localStorage.setItem("theme", newTheme);
-};
-const fetchDashboard = async () => {
-  const res = await API.get("/expenses/history");
-
-  setData(res.data);
-
-  setView("dashboard");
-};
-return (
+  return (
     <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor:
-          theme === "dark"
-            ? "black"
-            : theme === "light"
-            ? "white"
-            : "gray",
-        color:
-          theme === "light"
-            ? "black"
-            : "white"
-      }}
+      className={`min-h-screen ${tokens.bg} ${tokens.text}`}
+      style={{ padding: "16px" }}
     >
-  <h1>Current Theme: {theme}</h1>
+      {/* Theme selector */}
+      <div className="flex justify-end mb-3">
+        <ThemeSelector theme={theme} setTheme={setTheme} />
+      </div>
 
-<div className="flex gap-2 justify-end">
-
-  <button
-    onClick={() => changeTheme("light")}
-    className="px-3 py-1 rounded bg-yellow-400 text-black"
-  >
-    ☀️
-  </button>
-
-  <button
-    onClick={() => changeTheme("dark")}
-    className="px-3 py-1 rounded bg-black text-white border"
-  >
-    🌙
-  </button>
-
-  <button
-    onClick={() => changeTheme("grey")}
-    className="px-3 py-1 rounded bg-gray-500 text-white"
-  >
-    ⚫
-  </button>
-
-</div>
       {/* ---------------- FORM ---------------- */}
       {view === "form" && (
         <>
-          <h1 className="text-2xl font-bold text-center">
-            Expense Tracker
-          </h1>
+          <h1 className="text-2xl font-bold text-center mb-4">Expense Tracker</h1>
 
-          <div className="bg-white shadow-lg rounded-2xl p-4 space-y-3">
-
+          <div className={`${tokens.card} ${tokens.border} border shadow-lg rounded-2xl p-4 space-y-3`}>
             <input
               type="date"
               value={expense.date}
-              onChange={(e) =>
-                setExpense({ ...expense, date: e.target.value })
-              }
-              className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-blue-400"
+              onChange={(e) => setExpense({ ...expense, date: e.target.value })}
+              className={`border rounded-lg p-2 w-full focus:ring-2 focus:outline-none ${tokens.input}`}
             />
-
             <input
               type="number"
               placeholder="Amount"
               value={expense.amount}
-              onChange={(e) =>
-                setExpense({ ...expense, amount: e.target.value })
-              }
-              className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-blue-400"
+              onChange={(e) => setExpense({ ...expense, amount: e.target.value })}
+              className={`border rounded-lg p-2 w-full focus:ring-2 focus:outline-none ${tokens.input}`}
             />
-
             <select
               value={expense.type}
-              onChange={(e) =>
-                setExpense({ ...expense, type: e.target.value })
-              }
-              className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-blue-400"
+              onChange={(e) => setExpense({ ...expense, type: e.target.value })}
+              className={`border rounded-lg p-2 w-full focus:ring-2 focus:outline-none ${tokens.input}`}
             >
-              {categories.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
+              {categories.map((c) => <option key={c}>{c}</option>)}
             </select>
-
             <input
               type="text"
               placeholder="Description"
               value={expense.description}
-              onChange={(e) =>
-                setExpense({ ...expense, description: e.target.value })
-              }
-              className="border rounded-lg p-2 w-full focus:ring-2 focus:ring-blue-400"
+              onChange={(e) => setExpense({ ...expense, description: e.target.value })}
+              className={`border rounded-lg p-2 w-full focus:ring-2 focus:outline-none ${tokens.input}`}
             />
-
             <button
               onClick={handleAdd}
-              className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-xl w-full shadow"
+              className={`${tokens.btn.primary} p-2 rounded-xl w-full shadow font-medium`}
             >
               Add Expense
             </button>
@@ -234,7 +144,7 @@ return (
 
           <button
             onClick={() => setView("menu")}
-            className="bg-black text-white p-2 w-full rounded-xl shadow"
+            className={`${tokens.btn.secondary} p-2 w-full rounded-xl shadow mt-3`}
           >
             View Expense History
           </button>
@@ -244,151 +154,112 @@ return (
       {/* ---------------- MENU ---------------- */}
       {view === "menu" && (
         <div className="space-y-3">
-
-          <button
-            onClick={fetchWeekly}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 w-full rounded-xl shadow"
-          >
+          <button onClick={handleFetchDashboard} className={`${tokens.btn.primary} p-3 w-full rounded-xl shadow`}>
+            Dashboard
+          </button>
+          <button onClick={handleFetchWeekly} className={`${tokens.btn.primary} p-3 w-full rounded-xl shadow`}>
             Weekly Expense
           </button>
-
-          <button
-            onClick={fetchMonthly}
-            className="bg-gradient-to-r from-green-500 to-green-600 text-white p-3 w-full rounded-xl shadow"
-          >
+          <button onClick={handleFetchMonthly} className={`${tokens.btn.success} p-3 w-full rounded-xl shadow`}>
             Monthly Expense
           </button>
-
-          <button
-            onClick={fetchHistory}
-            className="bg-gray-800 text-white p-3 w-full rounded-xl shadow"
-          >
+          <button onClick={handleFetchHistory} className={`${tokens.btn.secondary} p-3 w-full rounded-xl shadow`}>
             Expense History
           </button>
-
-          <button
-            onClick={() => setView("form")}
-            className="text-blue-500 text-sm"
-          >
+          <button onClick={() => setView("form")} className={`text-sm ${tokens.btn.ghost}`}>
             ← Back
           </button>
         </div>
       )}
 
-    
-            {/* ---------------- WEEKLY ---------------- */}
-      {view === "weekly" && data && (
+      {/* ---------------- WEEKLY ---------------- */}
+      {view === "weekly" && weeklyData && (
         <WeeklyView
-          data={data}
+          data={weeklyData}
           displayMode={displayMode}
           setDisplayMode={changeDisplayMode}
           onBack={() => setView("menu")}
         />
       )}
-   {view === "monthly" && data && (
-  <MonthlyView
-    data={data}
-    displayMode={displayMode}
-    setDisplayMode={changeDisplayMode}
-    onBack={() => setView("menu")}
-  />
-   )}
 
-{view === "history" && data && (
-  <HistoryView
-    data={data}
-    displayMode={displayMode}
-    setDisplayMode={changeDisplayMode}
-    onBack={() => setView("menu")}
-    onDelete={handleDelete}
-    onEdit={openEdit}
-  />
-)}
+      {/* ---------------- MONTHLY ---------------- */}
+      {view === "monthly" && monthlyData && (
+        <MonthlyView
+          data={monthlyData}
+          displayMode={displayMode}
+          setDisplayMode={changeDisplayMode}
+          onBack={() => setView("menu")}
+        />
+      )}
 
-{/* ---------------- EDIT MODAL ---------------- */}
-{editingExpense && (
-  <div className="fixed insetcurre-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      {/* ---------------- HISTORY ---------------- */}
+      {view === "history" && (
+        <HistoryView
+          data={expenses}
+          displayMode={displayMode}
+          setDisplayMode={changeDisplayMode}
+          onBack={() => setView("menu")}
+          onDelete={handleDelete}
+          onEdit={openEdit}
+        />
+      )}
 
-    <div className="bg-white rounded-2xl p-5 w-[90%] max-w-md space-y-3">
+      {/* ---------------- DASHBOARD ---------------- */}
+      {view === "dashboard" && (
+        <DashboardView
+          data={expenses}
+          onBack={() => setView("menu")}
+          tokens={tokens}
+        />
+      )}
 
-      <h2 className="text-xl font-bold">
-        Edit Expense
-      </h2>
-
-      <input
-        type="date"
-        value={editForm.date}
-        onChange={(e) =>
-          setEditForm({
-            ...editForm,
-            date: e.target.value
-          })
-        }
-        className="border rounded-lg p-2 w-full"
-      />
-
-      <input
-        type="number"
-        value={editForm.amount}
-        onChange={(e) =>
-          setEditForm({
-            ...editForm,
-            amount: e.target.value
-          })
-        }
-        className="border rounded-lg p-2 w-full"
-      />
-
-      <select
-        value={editForm.type}
-        onChange={(e) =>
-          setEditForm({
-            ...editForm,
-            type: e.target.value
-          })
-        }
-        className="border rounded-lg p-2 w-full"
-      >
-        <option>FOOD</option>
-        <option>TRAVEL</option>
-        <option>MOBILE</option>
-        <option>LENT</option>
-        <option>ENTERTAINMENT</option>
-        <option>OTHER</option>
-      </select>
-
-      <input
-        type="text"
-        value={editForm.description}
-        onChange={(e) =>
-          setEditForm({
-            ...editForm,
-            description: e.target.value
-          })
-        }
-        className="border rounded-lg p-2 w-full"
-      />
-
-      <div className="flex gap-2">
-
-        <button
-          onClick={() => setEditingExpense(null)}
-          className="bg-gray-300 px-4 py-2 rounded-lg w-full"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={handleUpdate}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
-        >
-          Save
-        </button>
-
-      </div>
-    </div>
-  </div>
-)}
+      {/* ---------------- EDIT MODAL ---------------- */}
+      {editingExpense && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className={`${tokens.card} rounded-2xl p-5 w-[90%] max-w-md space-y-3`}>
+            <h2 className="text-xl font-bold">Edit Expense</h2>
+            <input
+              type="date"
+              value={editForm.date}
+              onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+              className={`border rounded-lg p-2 w-full ${tokens.input}`}
+            />
+            <input
+              type="number"
+              value={editForm.amount}
+              onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+              className={`border rounded-lg p-2 w-full ${tokens.input}`}
+            />
+            <select
+              value={editForm.type}
+              onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
+              className={`border rounded-lg p-2 w-full ${tokens.input}`}
+            >
+              {categories.map((c) => <option key={c}>{c}</option>)}
+            </select>
+            <input
+              type="text"
+              value={editForm.description}
+              onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+              className={`border rounded-lg p-2 w-full ${tokens.input}`}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditingExpense(null)}
+                className={`${tokens.btn.secondary} px-4 py-2 rounded-lg w-full`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdate}
+                className={`${tokens.btn.primary} px-4 py-2 rounded-lg w-full`}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
