@@ -4,7 +4,7 @@
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { formatDate, formatRupees, totalAmount, categorySummary } from "./expenseHelpers";
+import { formatDate, formatRupees} from "./expenseHelpers";
 import { totalAmount as calcTotal, categorySummary as calcCategories } from "./analytics";
 
 /**
