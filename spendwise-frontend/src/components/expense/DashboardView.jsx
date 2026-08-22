@@ -1,17 +1,16 @@
 // src/components/expense/DashboardView.jsx
-// Full replacement of the stub. Uses StatCard + useDashboard.
-// Props interface is EXTENDED — onBack is still supported.
+// Overview dashboard using StatCard with Lucide icons.
 
 import StatCard from "../ui/StatCard";
 import EmptyState from "../ui/EmptyState";
 import { useDashboard } from "../../hooks/useDashboard";
 import { formatRupees } from "../../utils/expenseHelpers";
+import { Wallet, Calendar, CalendarDays, Receipt, ArrowLeft } from "lucide-react";
 
 export default function DashboardView({ data, onBack, tokens }) {
   const expenses = Array.isArray(data) ? data : [];
   const { stats } = useDashboard(expenses);
 
-  // tokens fallback for when called from Tracker without theme context
   const t = tokens || {
     text: "text-gray-900",
     muted: "text-gray-500",
@@ -25,7 +24,10 @@ export default function DashboardView({ data, onBack, tokens }) {
       <div className={`space-y-4 ${t.text}`}>
         <h2 className="text-2xl font-bold">Dashboard</h2>
         <EmptyState message="No expenses yet — add one to get started" tokens={t} />
-        <button onClick={onBack} className={`text-sm ${t.btn.ghost}`}>← Back</button>
+        <button onClick={onBack} className={`text-sm ${t.btn.ghost} flex items-center gap-1`}>
+          <ArrowLeft size={14} />
+          <span>Back</span>
+        </button>
       </div>
     );
   }
@@ -34,25 +36,25 @@ export default function DashboardView({ data, onBack, tokens }) {
     {
       label: "All Time Total",
       value: formatRupees(stats.totalAll),
-      icon: "💰",
+      icon: Wallet,
       accent: false,
     },
     {
       label: "This Month",
       value: formatRupees(stats.totalThisMonth),
-      icon: "📅",
+      icon: Calendar,
       accent: true,
     },
     {
       label: "This Week",
       value: formatRupees(stats.totalThisWeek),
-      icon: "📆",
+      icon: CalendarDays,
       accent: false,
     },
     {
       label: "Transactions",
       value: stats.transactionCount,
-      icon: "🧾",
+      icon: Receipt,
       accent: false,
     },
   ];
@@ -61,8 +63,9 @@ export default function DashboardView({ data, onBack, tokens }) {
     <div className={`space-y-5 ${t.text} animate-fade-slide-up`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}>
-            ← Back
+          <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}>
+            <ArrowLeft size={13} />
+            <span>Back</span>
           </button>
           <h2 className="text-xl font-black tracking-tight">Overview Dashboard</h2>
         </div>

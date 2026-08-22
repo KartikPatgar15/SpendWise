@@ -1,10 +1,24 @@
 // src/components/notes/Toolbar.jsx
-// Rich editor toolbar: text, checklist, table, calculator, pin, favorite, color, PDF.
+// Rich editor toolbar: text, checklist, table, calculator, pin, favorite, color, PDF with Lucide icons.
 
 import { useState } from "react";
 import ColorPicker from "./ColorPicker";
 import { CATEGORIES } from "./CategoryFilter";
 import { TEMPLATES } from "../../utils/notes/templates";
+import {
+  Bold,
+  Italic,
+  Underline,
+  SquareCheck,
+  Table as TableIcon,
+  Calculator,
+  Pin,
+  Star,
+  Palette,
+  Folder,
+  FileText,
+  Download,
+} from "lucide-react";
 
 export default function Toolbar({
   note, onUpdate, onInsertHtml, onToggleCalc, onExportPdf, tokens,
@@ -18,7 +32,7 @@ export default function Toolbar({
   const [tableCols, setTableCols]         = useState(3);
 
   const handleRowsChange = (val) => {
-    const num = val.replace(/[^\d]/g, "").slice(0, 2); // max 2 digits, digits only
+    const num = val.replace(/[^\d]/g, "").slice(0, 2);
     setTableRows(num);
   };
   const handleColsChange = (val) => {
@@ -68,40 +82,44 @@ export default function Toolbar({
     setShowTemplates(false);
   };
 
-  const toolBtn = (label, title, onClick, active = false) => (
-    <button
-      key={label}
-      onClick={onClick}
-      onMouseDown={(e) => {
-        // Prevent clicking formatting buttons from stealing focus from contenteditable
-        if (label === "B" || label === "I" || label === "U" || label === "☑") {
-          e.preventDefault();
-        }
-      }}
-      title={title}
-      className={`px-2 py-1.5 rounded-lg text-sm transition-all active:scale-90 ${
-        active ? t.btn.primary : `${t.btn.secondary} hover:brightness-95`
-      }`}
-    >
-      {label}
-    </button>
-  );
+  const toolBtn = (key, icon, title, onClick, active = false, labelText = null) => {
+    const IconComp = icon;
+    return (
+      <button
+        key={key}
+        type="button"
+        onClick={onClick}
+        onMouseDown={(e) => {
+          if (["bold", "italic", "underline", "checklist"].includes(key)) {
+            e.preventDefault();
+          }
+        }}
+        title={title}
+        className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-90 flex items-center gap-1.5 ${
+          active ? t.btn.primary : `${t.btn.secondary} hover:brightness-95`
+        }`}
+      >
+        <IconComp size={15} strokeWidth={active ? 2.4 : 1.9} />
+        {labelText && <span className="hidden sm:inline text-[11px]">{labelText}</span>}
+      </button>
+    );
+  };
 
   return (
     <div className={`${t.surface} ${t.border} border-b px-3 py-2 flex flex-wrap gap-1.5 items-center relative`}>
       {/* Text formatting */}
-      {toolBtn("B", "Bold",        () => document.execCommand("bold"))}
-      {toolBtn("I", "Italic",      () => document.execCommand("italic"))}
-      {toolBtn("U", "Underline",   () => document.execCommand("underline"))}
+      {toolBtn("bold",      Bold,      "Bold",      () => document.execCommand("bold"))}
+      {toolBtn("italic",    Italic,    "Italic",    () => document.execCommand("italic"))}
+      {toolBtn("underline", Underline, "Underline", () => document.execCommand("underline"))}
 
       <div className={`w-px h-5 ${t.border} border-l mx-0.5`} />
 
       {/* Checklist */}
-      {toolBtn("☑", "Checklist", insertChecklist)}
+      {toolBtn("checklist", SquareCheck, "Checklist", insertChecklist, false, "To-Do")}
 
       {/* Table */}
       <div className="relative">
-        {toolBtn("📊", "Table", () => setShowTable((v) => !v), showTable)}
+        {toolBtn("table", TableIcon, "Table", () => setShowTable((v) => !v), showTable, "Table")}
         {showTable && (
           <div className={`absolute top-9 left-0 z-30 ${t.card} ${t.border} border rounded-xl p-3 shadow-xl space-y-2 w-44 animate-fade-slide-up`}
             onMouseDown={(e) => e.stopPropagation()}>
@@ -112,7 +130,6 @@ export default function Toolbar({
                 onChange={(e) => handleRowsChange(e.target.value)}
                 onKeyDown={(e) => e.stopPropagation()}
                 onKeyUp={(e) => e.stopPropagation()}
-                onKeyPress={(e) => e.stopPropagation()}
                 className={`border rounded-lg px-2 py-1 text-xs w-14 ${t.input}`} />
             </div>
             <div className="flex gap-2 items-center">
@@ -121,7 +138,6 @@ export default function Toolbar({
                 onChange={(e) => handleColsChange(e.target.value)}
                 onKeyDown={(e) => e.stopPropagation()}
                 onKeyUp={(e) => e.stopPropagation()}
-                onKeyPress={(e) => e.stopPropagation()}
                 className={`border rounded-lg px-2 py-1 text-xs w-14 ${t.input}`} />
             </div>
             <button onClick={insertTable}
@@ -133,19 +149,19 @@ export default function Toolbar({
       </div>
 
       {/* Calculator */}
-      {toolBtn("🧮", "Calculator", onToggleCalc)}
+      {toolBtn("calculator", Calculator, "Calculator", onToggleCalc)}
 
       <div className={`w-px h-5 ${t.border} border-l mx-0.5`} />
 
       {/* Pin */}
-      {toolBtn("📌", "Pin", () => onUpdate({ pinned: !note.pinned }), note.pinned)}
+      {toolBtn("pin", Pin, "Pin Note", () => onUpdate({ pinned: !note.pinned }), note.pinned)}
 
       {/* Favorite */}
-      {toolBtn("⭐", "Favorite", () => onUpdate({ favorite: !note.favorite }), note.favorite)}
+      {toolBtn("favorite", Star, "Favorite", () => onUpdate({ favorite: !note.favorite }), note.favorite)}
 
       {/* Color picker */}
       <div className="relative">
-        {toolBtn("🎨", "Color", () => { setShowColor((v) => !v); setShowCategory(false); setShowTemplates(false); })}
+        {toolBtn("color", Palette, "Card Color", () => { setShowColor((v) => !v); setShowCategory(false); setShowTemplates(false); })}
         {showColor && (
           <div className={`absolute top-9 left-0 z-30 ${t.card} ${t.border} border rounded-xl shadow-xl animate-fade-slide-up`}>
             <ColorPicker value={note.color} onChange={(c) => { onUpdate({ color: c }); setShowColor(false); }} />
@@ -155,7 +171,7 @@ export default function Toolbar({
 
       {/* Category */}
       <div className="relative">
-        {toolBtn("📂", "Category", () => { setShowCategory((v) => !v); setShowColor(false); setShowTemplates(false); })}
+        {toolBtn("category", Folder, "Category", () => { setShowCategory((v) => !v); setShowColor(false); setShowTemplates(false); }, false, note.category)}
         {showCategory && (
           <div className={`absolute top-9 left-0 z-30 ${t.card} ${t.border} border rounded-xl shadow-xl p-2 space-y-1 w-36 animate-fade-slide-up`}>
             {CATEGORIES.filter((c) => c !== "All").map((cat) => (
@@ -172,7 +188,7 @@ export default function Toolbar({
 
       {/* Templates */}
       <div className="relative">
-        {toolBtn("📄", "Templates", () => { setShowTemplates((v) => !v); setShowColor(false); setShowCategory(false); })}
+        {toolBtn("templates", FileText, "Templates", () => { setShowTemplates((v) => !v); setShowColor(false); setShowCategory(false); }, false, "Templates")}
         {showTemplates && (
           <div className={`absolute top-9 left-0 z-30 ${t.card} ${t.border} border rounded-xl shadow-xl p-2 space-y-1 w-48 animate-fade-slide-up`}>
             <p className={`text-xs font-bold px-2 py-1 ${t.muted}`}>Templates</p>
@@ -187,7 +203,7 @@ export default function Toolbar({
       </div>
 
       {/* PDF Export */}
-      {toolBtn("📥", "Export PDF", onExportPdf)}
+      {toolBtn("pdf", Download, "Export PDF", onExportPdf, false, "PDF")}
     </div>
   );
 }

@@ -1,6 +1,5 @@
 // src/pages/AnalyticsPage.jsx
-// New analytics page. Completely standalone — does not modify any existing file.
-// Route: /analytics
+// Analytics & trends dashboard with Lucide icons.
 
 import { useEffect } from "react";
 import { useExpenses } from "../hooks/useExpenses";
@@ -16,9 +15,12 @@ import EmptyState from "../components/ui/EmptyState";
 import { formatRupees } from "../utils/expenseHelpers";
 import { totalAmount, categorySummary } from "../utils/analytics";
 import { CATEGORY_COLORS } from "../config/themeConfig";
+import { TrendingUp, Wallet, Receipt, Tag, Calculator, ArrowLeft, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function AnalyticsPage() {
   const { tokens, theme } = useTheme();
+  const navigate = useNavigate();
   const { expenses, fetchHistory, loading } = useExpenses();
   const { from, to, setFrom, setTo, clearRange, filteredExpenses, hasRange } =
     useDateRange(expenses);
@@ -35,14 +37,19 @@ export default function AnalyticsPage() {
     <div className={`min-h-screen ${tokens.bg} ${tokens.text} px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full space-y-5 animate-fade-slide-up transition-colors`}>
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-xl sm:text-2xl">📈</span>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Analytics & Trends</h1>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className={`p-2 rounded-xl ${tokens.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`} title="Go back">
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <TrendingUp size={22} className="text-blue-500" />
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Analytics & Trends</h1>
+            </div>
+            <p className={`text-xs font-medium ${tokens.muted}`}>
+              {hasRange ? "Filtered range" : "All time history"} · <strong className={tokens.text}>{filteredExpenses.length} transactions</strong>
+            </p>
           </div>
-          <p className={`text-xs font-medium ${tokens.muted}`}>
-            {hasRange ? "Filtered range" : "All time history"} · <strong className={tokens.text}>{filteredExpenses.length} transactions</strong>
-          </p>
         </div>
       </div>
 
@@ -83,26 +90,26 @@ export default function AnalyticsPage() {
             <StatCard
               label="Total spent"
               value={formatRupees(total)}
-              icon="💸"
+              icon={Wallet}
               tokens={tokens}
               accent
             />
             <StatCard
               label="Transactions"
               value={filteredExpenses.length}
-              icon="🧾"
+              icon={Receipt}
               tokens={tokens}
             />
             <StatCard
               label="Categories"
               value={Object.keys(catSummary).length}
-              icon="🏷️"
+              icon={Tag}
               tokens={tokens}
             />
             <StatCard
               label="Avg / Entry"
               value={formatRupees(filteredExpenses.length > 0 ? total / filteredExpenses.length : 0)}
-              icon="📐"
+              icon={Calculator}
               tokens={tokens}
             />
           </div>

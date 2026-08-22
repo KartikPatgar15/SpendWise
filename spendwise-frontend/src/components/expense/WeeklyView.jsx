@@ -1,9 +1,18 @@
 // src/components/expense/WeeklyView.jsx
-// Redesigned: theme-aware via tokens prop, mobile-friendly, consistent button sizes.
+// Redesigned: theme-aware via tokens prop, mobile-friendly, consistent button sizes and Lucide icons.
 
 import { exportToCSV } from "../../utils/exportCsv";
 import { exportToPDF } from "../../utils/exportPdf";
 import { CATEGORY_COLORS, EXPENSE_CATEGORIES } from "../../config/themeConfig";
+import {
+  Table as TableIcon,
+  LayoutGrid,
+  FileSpreadsheet,
+  FileText,
+  ArrowLeft,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
 export default function WeeklyView({ data, onBack, displayMode, setDisplayMode, tokens }) {
   const t = tokens || defaultTokens();
@@ -19,15 +28,19 @@ export default function WeeklyView({ data, onBack, displayMode, setDisplayMode, 
   const Toolbar = () => (
     <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
       <div className={`inline-flex rounded-xl overflow-hidden border ${t.border} p-0.5 bg-black/5 dark:bg-white/5`}>
-        {["table", "card"].map((mode) => (
+        {[
+          { mode: "table", label: "Table", icon: TableIcon },
+          { mode: "card",  label: "Cards", icon: LayoutGrid },
+        ].map(({ mode, label, icon: ModeIcon }) => (
           <button
             key={mode}
             onClick={() => setDisplayMode(mode)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 flex items-center gap-1.5 ${
               displayMode === mode ? `${t.btn.primary} shadow-2xs` : "opacity-60 hover:opacity-100"
             }`}
           >
-            {mode === "table" ? "📋 Table" : "📦 Cards"}
+            <ModeIcon size={14} />
+            <span>{label}</span>
           </button>
         ))}
       </div>
@@ -35,16 +48,18 @@ export default function WeeklyView({ data, onBack, displayMode, setDisplayMode, 
       <div className="flex gap-1.5">
         <button
           onClick={() => exportToCSV(expenses, "weekly-expenses.csv")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.success}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.success}`}
         >
-          <span>⬇</span> CSV
+          <FileSpreadsheet size={14} />
+          <span>CSV</span>
         </button>
 
         <button
           onClick={() => exportToPDF(expenses, "Weekly Expense Report", "weekly-expenses.pdf")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.primary}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.primary}`}
         >
-          <span>⬇</span> PDF
+          <FileText size={14} />
+          <span>PDF</span>
         </button>
       </div>
     </div>
@@ -60,8 +75,9 @@ export default function WeeklyView({ data, onBack, displayMode, setDisplayMode, 
       <div className={`${t.card} ${t.border} border rounded-2xl p-4 shadow-xs`}>
         <p className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${t.muted}`}>vs Last Week</p>
         <div className="flex items-center gap-1.5 mt-0.5">
-          <span className={`text-base font-black tabular-nums ${isUp ? "text-rose-500" : "text-emerald-500"}`}>
-            {isUp ? "▲" : "▼"} ₹{Math.abs(difference).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          <span className={`text-base font-black tabular-nums flex items-center gap-1 ${isUp ? "text-rose-500" : "text-emerald-500"}`}>
+            {isUp ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            <span>₹{Math.abs(difference).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
           </span>
         </div>
       </div>
@@ -178,8 +194,9 @@ function Header({ title, onBack, t }) {
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
-        <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}>
-          ← Back
+        <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}>
+          <ArrowLeft size={13} />
+          <span>Back</span>
         </button>
         <h2 className={`text-xl font-black tracking-tight ${t.text}`}>{title}</h2>
       </div>

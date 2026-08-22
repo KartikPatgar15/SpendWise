@@ -1,9 +1,10 @@
 // src/components/splitExpense/EventHome.jsx
-// Event dashboard — list existing events, create new.
+// Event dashboard — list existing events, create new with Lucide icons.
 
 import { useState } from "react";
 import { generateId, saveEvent } from "../../utils/split/storage";
 import { validateEvent } from "../../utils/split/validation";
+import { Users, Receipt, Plus, Trash2, ArrowRight } from "lucide-react";
 
 export default function EventHome({ events, onOpenEvent, onDeleteEvent, tokens }) {
   const t = tokens;
@@ -32,7 +33,7 @@ export default function EventHome({ events, onOpenEvent, onDeleteEvent, tokens }
     <div className="space-y-5 animate-fade-slide-up">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-lg shadow-md shadow-blue-500/20">
-          ✂️
+          <Users size={20} strokeWidth={2.2} />
         </div>
         <div>
           <h1 className={`text-xl font-black tracking-tight ${t.text}`}>Split Expense</h1>
@@ -57,9 +58,10 @@ export default function EventHome({ events, onOpenEvent, onDeleteEvent, tokens }
           />
           <button
             onClick={handleCreate}
-            className={`${t.btn.primary} px-4 py-2.5 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition-all`}
+            className={`${t.btn.primary} px-4 py-2.5 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition-all flex items-center gap-1.5`}
           >
-            + Create
+            <Plus size={14} />
+            <span>Create</span>
           </button>
         </div>
         {error && <p className="text-xs font-semibold text-rose-500">{error}</p>}
@@ -67,10 +69,12 @@ export default function EventHome({ events, onOpenEvent, onDeleteEvent, tokens }
 
       {/* Previous events */}
       {events.length === 0 ? (
-        <div className={`text-center py-16 ${t.muted} animate-fade-in`}>
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">🧾</div>
+        <div className={`text-center py-16 ${t.muted} animate-fade-in space-y-2`}>
+          <div className="w-14 h-14 mx-auto mb-1 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">
+            <Receipt size={28} className={t.muted} />
+          </div>
           <p className="text-sm font-bold">No split events yet</p>
-          <p className="text-xs mt-1">Create one above to start adding expenses and splitting</p>
+          <p className="text-xs">Create one above to start adding expenses and splitting</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -84,11 +88,13 @@ export default function EventHome({ events, onOpenEvent, onDeleteEvent, tokens }
                 <div className="space-y-2 mb-3">
                   <p className={`text-sm sm:text-base font-black truncate ${t.text}`}>{event.eventName}</p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500">
-                      👥 {event.participants.length} people
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500">
+                      <Users size={11} />
+                      <span>{event.participants.length} people</span>
                     </span>
-                    <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
-                      🧾 {event.expenses.length} bills
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                      <Receipt size={11} />
+                      <span>{event.expenses.length} bills</span>
                     </span>
                     <span className={`text-[10px] tabular-nums font-medium ${t.muted}`}>
                       {new Date(event.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
@@ -98,15 +104,17 @@ export default function EventHome({ events, onOpenEvent, onDeleteEvent, tokens }
                 <div className="flex gap-1.5 justify-end pt-2 border-t border-black/5 dark:border-white/5">
                   <button
                     onClick={() => onOpenEvent(event)}
-                    className={`${t.btn.primary} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all`}
+                    className={`${t.btn.primary} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center gap-1`}
                   >
-                    Open
+                    <span>Open</span>
+                    <ArrowRight size={12} />
                   </button>
                   <button
-                    onClick={() => onDeleteEvent(event.id)}
-                    className={`${t.btn.danger} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all`}
+                    onClick={() => onDeleteEvent(event.id, event.eventName)}
+                    className={`${t.btn.danger} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center gap-1`}
                   >
-                    Delete
+                    <Trash2 size={12} />
+                    <span>Delete</span>
                   </button>
                 </div>
               </div>

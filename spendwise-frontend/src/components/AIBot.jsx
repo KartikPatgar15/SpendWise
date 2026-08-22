@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useTheme } from "../hooks/useTheme";
+import { Bot, Sparkles, X, RotateCw } from "lucide-react";
 
 function AIBot() {
   const [open, setOpen] = useState(false);
@@ -36,9 +37,9 @@ function AIBot() {
         onClick={handleToggle}
         title="AI Assistant"
         aria-label="Toggle AI Assistant"
-        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 bg-linear-to-tr from-[#8B7CF6] to-[#6D28D9] hover:from-[#7C3AED] hover:to-[#5B21B6] text-white w-12 h-12 rounded-full shadow-lg shadow-[#8B7CF6]/30 flex items-center justify-center text-xl transition-all duration-200 hover:scale-105 active:scale-95"
+        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 bg-linear-to-tr from-[#8B7CF6] to-[#6D28D9] hover:from-[#7C3AED] hover:to-[#5B21B6] text-white w-12 h-12 rounded-full shadow-lg shadow-[#8B7CF6]/30 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
       >
-        <span className="leading-none">🤖</span>
+        <Bot size={22} strokeWidth={2.2} />
       </button>
 
       {/* Chat / Suggestion Box */}
@@ -52,10 +53,10 @@ function AIBot() {
             </div>
             <button
               onClick={() => setOpen(false)}
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold opacity-60 hover:opacity-100 ${tokens.text} transition-opacity`}
+              className={`w-6 h-6 rounded-full flex items-center justify-center opacity-60 hover:opacity-100 ${tokens.text} transition-opacity`}
               aria-label="Close AI Assistant"
             >
-              ✕
+              <X size={15} />
             </button>
           </div>
 
@@ -75,9 +76,19 @@ function AIBot() {
           <button
             onClick={fetchSuggestion}
             disabled={loading}
-            className={`w-full py-2 rounded-xl text-xs font-bold ${tokens.btn.primary} active:scale-95 transition-all duration-150 ${loading ? "opacity-60" : ""}`}
+            className={`w-full py-2.5 rounded-xl text-xs font-bold ${tokens.btn.primary} active:scale-95 transition-all duration-150 flex items-center justify-center gap-1.5 ${loading ? "opacity-60" : ""}`}
           >
-            {loading ? "Analyzing..." : "Refresh Suggestion ✨"}
+            {loading ? (
+              <>
+                <RotateCw size={14} className="animate-spin" />
+                <span>Analyzing…</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} />
+                <span>Refresh Suggestion</span>
+              </>
+            )}
           </button>
         </div>
       )}

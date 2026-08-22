@@ -1,8 +1,4 @@
-// src/pages/Tracker.jsx — Full UI/UX polish pass
-// Animations: page mount, stat cards stagger, modal slide-up, budget bar grow
-// Typography: tighter hierarchy, consistent scale
-// Spacing: more breathable, consistent padding
-// Logic: 100% unchanged
+// src/pages/Tracker.jsx — Full UI/UX polish pass with Branding, Lucide Icons & Delete Confirmation Modal
 
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -24,17 +20,46 @@ import HistoryView from "../components/expense/HistoryView";
 import MonthlyView from "../components/expense/MonthlyView";
 import DashboardView from "../components/expense/DashboardView";
 import ThemeSelector from "../components/ui/ThemeSelector";
+import ConfirmModal from "../components/ui/ConfirmModal";
+import Logo from "../components/ui/Logo";
 import { EXPENSE_CATEGORIES } from "../config/themeConfig";
 import { filterCurrentMonth, filterCurrentWeek, formatRupees } from "../utils/expenseHelpers";
 import { totalAmount } from "../utils/analytics";
+import {
+  Target,
+  Plus,
+  PlusCircle,
+  Zap,
+  Clock,
+  ArrowRight,
+  Sparkles,
+  LayoutDashboard,
+  CalendarDays,
+  Calendar,
+  History,
+  TrendingUp,
+  Repeat,
+  Bot,
+  User as UserIcon,
+  LogOut,
+  Utensils,
+  Plane,
+  Smartphone,
+  Handshake,
+  Film,
+  Package,
+  Check,
+  X,
+  Pencil,
+} from "lucide-react";
 
-const CATEGORY_ICONS = {
-  FOOD: "🍔",
-  TRAVEL: "✈️",
-  MOBILE: "📱",
-  LENT: "🤝",
-  ENTERTAINMENT: "🎬",
-  OTHER: "📦",
+const CATEGORY_ICON_COMPONENTS = {
+  FOOD: Utensils,
+  TRAVEL: Plane,
+  MOBILE: Smartphone,
+  LENT: Handshake,
+  ENTERTAINMENT: Film,
+  OTHER: Package,
 };
 
 export default function Tracker() {
@@ -51,15 +76,19 @@ export default function Tracker() {
   const { budget, setBudget, computeRemaining, computeProgress } = useBudget();
   const { insights } = useAI();
 
-  const [view, setView]                   = useState("form");
-  const [loading, setLoading]             = useState(false);
-  const [successMsg, setSuccessMsg]       = useState("");
-  const [expense, setExpense]             = useState({ date: "", amount: "", type: "FOOD", description: "" });
+  const [view, setView]                     = useState("form");
+  const [loading, setLoading]               = useState(false);
+  const [successMsg, setSuccessMsg]         = useState("");
+  const [expense, setExpense]               = useState({ date: "", amount: "", type: "FOOD", description: "" });
   const [editingExpense, setEditingExpense] = useState(null);
-  const [editForm, setEditForm]           = useState({ date: "", amount: "", type: "FOOD", description: "" });
-  const [displayMode, setDisplayMode]     = useState(() => localStorage.getItem("displayMode") || "table");
-  const [budgetInput, setBudgetInput]     = useState("");
+  const [editForm, setEditForm]             = useState({ date: "", amount: "", type: "FOOD", description: "" });
+  const [displayMode, setDisplayMode]       = useState(() => localStorage.getItem("displayMode") || "table");
+  const [budgetInput, setBudgetInput]       = useState("");
   const [showBudgetEdit, setShowBudgetEdit] = useState(false);
+
+  // Single Delete Confirmation state
+  const [deleteTargetId, setDeleteTargetId]   = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => { fetchHistory(); }, []);
 
@@ -157,14 +186,30 @@ export default function Tracker() {
     setEditForm({ date: exp.date, amount: exp.amount, type: exp.type, description: exp.description });
   };
 
-  const handleDelete = async (id) => {
-    try { await deleteExpense(id); }
-    catch { alert("Failed to delete expense"); }
+  // ── Delete Confirmation Workflow ───────────────────────────────────────────
+  const promptDeleteExpense = (id) => {
+    setDeleteTargetId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    try {
+      await deleteExpense(deleteTargetId);
+      setIsDeleteModalOpen(false);
+      setDeleteTargetId(null);
+      showSuccess("Expense deleted ✓");
+    } catch {
+      alert("Failed to delete expense");
+    }
   };
 
   const handleUpdate = async () => {
-    try { await updateExpense(editingExpense.id, editForm); setEditingExpense(null); showSuccess("Expense updated ✓"); }
-    catch { alert("Failed to update expense"); }
+    try {
+      await updateExpense(editingExpense.id, editForm);
+      setEditingExpense(null);
+      showSuccess("Expense updated ✓");
+    } catch { alert("Failed to update expense"); }
   };
 
   const handleSetBudget = () => {
@@ -198,39 +243,44 @@ export default function Tracker() {
       {successMsg && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-fade-slide-up">
           <div className="bg-[#35D07F] text-[#080D12] text-xs font-black px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5">
-            <span>✓</span>
+            <Check size={14} strokeWidth={3} />
             <span>{successMsg}</span>
           </div>
         </div>
       )}
 
+      {/* ── Delete Confirmation Modal ─────────────────────────────────────── */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Expense"
+        message="Are you sure you want to permanently delete this expense transaction?"
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => { setIsDeleteModalOpen(false); setDeleteTargetId(null); }}
+        danger={true}
+      />
+
       <div className={containerClass}>
 
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5 dark:border-white/5 animate-fade-slide-up">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-[#14B8A6] to-[#22D3EE] flex items-center justify-center text-[#080D12] text-lg shadow-md shadow-[#22D3EE]/20 font-bold">
-              💳
-            </div>
-            <div>
-              <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>SpendWise</h1>
-              <p className={`text-xs font-medium ${t.muted}`}>Smart Expense Tracker & Financial Hub</p>
-            </div>
-          </div>
+          <Logo variant="auto" size="md" />
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeSelector theme={theme} setTheme={setTheme} />
             {user && (
               <div className="flex items-center gap-1.5 pl-2 border-l border-black/10 dark:border-white/10">
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 ${t.muted} hidden sm:inline-flex items-center gap-1`}>
-                  <span>👤</span>
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 ${t.muted} hidden sm:inline-flex items-center gap-1.5`}>
+                  <UserIcon size={13} />
                   <span>{user.username}</span>
                 </span>
                 <button
                   onClick={logout}
                   title="Sign out"
-                  className={`text-xs font-bold px-2.5 py-1 rounded-lg ${t.btn.ghost} hover:text-[#FF5C5C] hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}
+                  className={`text-xs font-bold px-2.5 py-1 rounded-lg ${t.btn.ghost} hover:text-[#FF5C5C] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}
                 >
-                  Logout
+                  <LogOut size={13} />
+                  <span>Logout</span>
                 </button>
               </div>
             )}
@@ -261,14 +311,26 @@ export default function Tracker() {
           <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 space-y-3 shadow-xs animate-fade-slide-up-2`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <span className="text-base">🎯</span>
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                  <Target size={16} strokeWidth={2.2} />
+                </div>
                 <div>
                   <p className={`text-xs font-extrabold uppercase tracking-wider ${t.text}`}>Monthly Budget</p>
                   <p className={`text-[11px] font-medium ${t.muted}`}>Current monthly target</p>
                 </div>
               </div>
-              <button onClick={() => setShowBudgetEdit((v) => !v)} className={`text-xs font-bold px-2.5 py-1 rounded-lg ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}>
-                {budget ? "Edit Limit" : "+ Set Budget"}
+              <button onClick={() => setShowBudgetEdit((v) => !v)} className={`text-xs font-bold px-2.5 py-1 rounded-lg ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}>
+                {budget ? (
+                  <>
+                    <Pencil size={12} />
+                    <span>Edit Limit</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus size={12} />
+                    <span>Set Budget</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -352,8 +414,9 @@ export default function Tracker() {
             </div>
 
             <button onClick={handleAdd} disabled={loading}
-              className={`${t.btn.primary} w-full py-3.5 rounded-xl font-extrabold text-sm tracking-wide shadow-sm active:scale-98 transition-all duration-150 ${loading ? "opacity-60" : ""}`}>
-              + Add Expense
+              className={`${t.btn.primary} w-full py-3.5 rounded-xl font-extrabold text-sm tracking-wide shadow-sm active:scale-98 transition-all duration-150 flex items-center justify-center gap-2 ${loading ? "opacity-60" : ""}`}>
+              <PlusCircle size={17} />
+              <span>Add Expense</span>
             </button>
           </div>
 
@@ -364,7 +427,9 @@ export default function Tracker() {
             <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 shadow-xs space-y-3`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">⚡</span>
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                    <Zap size={15} />
+                  </div>
                   <div>
                     <h3 className={`text-xs font-extrabold uppercase tracking-wider ${t.text}`}>Spending Snapshot</h3>
                     <p className={`text-[10px] font-medium ${t.muted}`}>Current month metrics</p>
@@ -411,7 +476,9 @@ export default function Tracker() {
             <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 shadow-xs space-y-2 flex flex-col justify-between`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">📊</span>
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                    <TrendingUp size={15} />
+                  </div>
                   <div>
                     <h3 className={`text-xs font-extrabold uppercase tracking-wider ${t.text}`}>7-Day Spending Trend</h3>
                     <p className={`text-[10px] font-medium ${t.muted}`}>Daily expenditure</p>
@@ -468,39 +535,45 @@ export default function Tracker() {
           <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 shadow-xs space-y-3 animate-fade-slide-up-4`}>
             <div className="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/5">
               <div className="flex items-center gap-2">
-                <span className="text-base">🕒</span>
+                <div className="w-7 h-7 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                  <Clock size={15} className={t.muted} />
+                </div>
                 <div>
                   <h3 className={`text-xs font-extrabold uppercase tracking-wider ${t.text}`}>Recent Expenses</h3>
                   <p className={`text-[10px] font-medium ${t.muted}`}>Latest logged transactions</p>
                 </div>
               </div>
               {expenses.length > 0 && (
-                <button onClick={() => navigate(fetchHistory, "history")} className={`text-xs font-bold ${t.btn.ghost} hover:underline`}>
-                  View all ({expenses.length}) →
+                <button onClick={() => navigate(fetchHistory, "history")} className={`text-xs font-bold ${t.btn.ghost} hover:underline inline-flex items-center gap-1`}>
+                  <span>View all ({expenses.length})</span>
+                  <ArrowRight size={13} />
                 </button>
               )}
             </div>
 
             {recentExpenses.length > 0 ? (
               <div className="divide-y divide-black/5 dark:divide-white/5">
-                {recentExpenses.map((exp) => (
-                  <div key={exp.id} className="py-2.5 flex items-center justify-between gap-3 first:pt-1 last:pb-0">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${t.badge[exp.type] || "bg-black/5"}`}>
-                        {CATEGORY_ICONS[exp.type] || "💳"}
-                      </span>
-                      <div className="min-w-0">
-                        <p className={`text-xs font-bold truncate ${t.text}`}>{exp.description || exp.type}</p>
-                        <p className={`text-[10px] font-medium ${t.muted}`}>
-                          {new Date(exp.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} • {exp.type}
-                        </p>
+                {recentExpenses.map((exp) => {
+                  const IconComp = CATEGORY_ICON_COMPONENTS[exp.type] || Package;
+                  return (
+                    <div key={exp.id} className="py-2.5 flex items-center justify-between gap-3 first:pt-1 last:pb-0">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${t.badge[exp.type] || "bg-black/5"}`}>
+                          <IconComp size={15} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className={`text-xs font-bold truncate ${t.text}`}>{exp.description || exp.type}</p>
+                          <p className={`text-[10px] font-medium ${t.muted}`}>
+                            {new Date(exp.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} • {exp.type}
+                          </p>
+                        </div>
                       </div>
+                      <p className={`text-xs font-black tabular-nums shrink-0 ${t.text}`}>
+                        {formatRupees(exp.amount)}
+                      </p>
                     </div>
-                    <p className={`text-xs font-black tabular-nums shrink-0 ${t.text}`}>
-                      {formatRupees(exp.amount)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-6 space-y-1">
@@ -514,14 +587,17 @@ export default function Tracker() {
           {insights?.tips?.[0] && (
             <div className={`${t.card} ${t.border} border rounded-2xl p-4 shadow-xs flex items-center justify-between gap-3 animate-fade-slide-up-4`}>
               <div className="flex items-center gap-3 min-w-0">
-                <span className="w-8 h-8 rounded-xl bg-[#8B7CF6]/15 text-[#8B7CF6] flex items-center justify-center text-sm shrink-0">💡</span>
+                <span className="w-8 h-8 rounded-xl bg-[#8B7CF6]/15 text-[#8B7CF6] flex items-center justify-center text-sm shrink-0">
+                  <Sparkles size={16} />
+                </span>
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-[#8B7CF6]">AI Insight Preview</p>
                   <p className={`text-xs font-medium truncate ${t.text}`}>{insights.tips[0]}</p>
                 </div>
               </div>
-              <button onClick={() => navigateTo("/ai")} className={`text-xs font-bold shrink-0 ${t.btn.ghost}`}>
-                View All →
+              <button onClick={() => navigateTo("/ai")} className={`text-xs font-bold shrink-0 ${t.btn.ghost} inline-flex items-center gap-1`}>
+                <span>View All</span>
+                <ArrowRight size={13} />
               </button>
             </div>
           )}
@@ -530,7 +606,7 @@ export default function Tracker() {
           <button onClick={() => setView("menu")}
             className={`${t.btn.secondary} w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 active:scale-98 transition-all duration-150 animate-fade-slide-up-5 shadow-2xs`}>
             <span>View Reports, Breakdowns & History</span>
-            <span>→</span>
+            <ArrowRight size={15} />
           </button>
         </div>
       )}
@@ -549,14 +625,16 @@ export default function Tracker() {
 
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-3.5">
             {[
-              { icon: "📊", title: "Dashboard",  subtitle: "Overview & metrics", onClick: () => navigate(fetchHistory, "dashboard"), accent: true,  delay: "animate-fade-slide-up-1" },
-              { icon: "📆", title: "This Week",  subtitle: "Last 7 days trend",  onClick: () => navigate(fetchWeekly,  "weekly"),    accent: false, delay: "animate-fade-slide-up-2" },
-              { icon: "📅", title: "This Month", subtitle: "Current month view", onClick: () => navigate(fetchMonthly, "monthly"),   accent: false, delay: "animate-fade-slide-up-3" },
-              { icon: "🗂️", title: "History",    subtitle: "All transactions",   onClick: () => navigate(fetchHistory, "history"),   accent: false, delay: "animate-fade-slide-up-4" },
-            ].map(({ icon, title, subtitle, onClick, accent, delay }) => (
+              { icon: LayoutDashboard, title: "Dashboard",  subtitle: "Overview & metrics", onClick: () => navigate(fetchHistory, "dashboard"), accent: true,  delay: "animate-fade-slide-up-1" },
+              { icon: CalendarDays,    title: "This Week",  subtitle: "Last 7 days trend",  onClick: () => navigate(fetchWeekly,  "weekly"),    accent: false, delay: "animate-fade-slide-up-2" },
+              { icon: Calendar,        title: "This Month", subtitle: "Current month view", onClick: () => navigate(fetchMonthly, "monthly"),   accent: false, delay: "animate-fade-slide-up-3" },
+              { icon: History,         title: "History",    subtitle: "All transactions",   onClick: () => navigate(fetchHistory, "history"),   accent: false, delay: "animate-fade-slide-up-4" },
+            ].map(({ icon: Icon, title, subtitle, onClick, accent, delay }) => (
               <button key={title} onClick={onClick}
                 className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 text-left shadow-2xs active:scale-98 transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 ${delay} ${accent ? "ring-2 ring-[#84A98C]/40 bg-[#84A98C]/10 dark:ring-[#22D3EE]/40 dark:bg-[#22D3EE]/10" : ""}`}>
-                <span className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-xl mb-3 shadow-inner">{icon}</span>
+                <span className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center mb-3 shadow-inner">
+                  <Icon size={20} className={accent ? "text-[#354F52] dark:text-[#22D3EE]" : t.text} />
+                </span>
                 <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>{title}</p>
                 <p className={`text-xs mt-0.5 font-medium ${t.muted}`}>{subtitle}</p>
               </button>
@@ -566,19 +644,23 @@ export default function Tracker() {
             <button onClick={() => navigateTo("/analytics")}
               className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 text-left shadow-2xs active:scale-98 transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 col-span-2 animate-fade-slide-up-5`}>
               <div className="flex items-center gap-3.5">
-                <span className="w-10 h-10 rounded-xl bg-[#3B82F6]/10 text-[#3B82F6] dark:bg-[#22D3EE]/15 dark:text-[#22D3EE] flex items-center justify-center text-xl shrink-0">📈</span>
+                <span className="w-10 h-10 rounded-xl bg-[#3B82F6]/10 text-[#3B82F6] dark:bg-[#22D3EE]/15 dark:text-[#22D3EE] flex items-center justify-center shrink-0">
+                  <TrendingUp size={20} />
+                </span>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>Analytics & Charts</p>
                   <p className={`text-xs font-medium ${t.muted}`}>Visual distributions, trends & category charts</p>
                 </div>
-                <span className={`text-xs font-bold ${t.muted}`}>→</span>
+                <ArrowRight size={16} className={t.muted} />
               </div>
             </button>
 
             {/* Recurring */}
             <button onClick={() => navigateTo("/recurring")}
               className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 text-left shadow-2xs active:scale-98 transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 animate-fade-slide-up-5`}>
-              <span className="w-10 h-10 rounded-xl bg-[#52796F]/10 text-[#52796F] dark:bg-[#14B8A6]/15 dark:text-[#14B8A6] flex items-center justify-center text-xl mb-3">🔁</span>
+              <span className="w-10 h-10 rounded-xl bg-[#52796F]/10 text-[#52796F] dark:bg-[#14B8A6]/15 dark:text-[#14B8A6] flex items-center justify-center mb-3">
+                <Repeat size={20} />
+              </span>
               <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>Recurring</p>
               <p className={`text-xs mt-0.5 font-medium ${t.muted}`}>Automated bills</p>
             </button>
@@ -586,7 +668,9 @@ export default function Tracker() {
             {/* Goals */}
             <button onClick={() => navigateTo("/goals")}
               className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 text-left shadow-2xs active:scale-98 transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 animate-fade-slide-up-5`}>
-              <span className="w-10 h-10 rounded-xl bg-[#4F9D69]/10 text-[#4F9D69] dark:bg-[#35D07F]/15 dark:text-[#35D07F] flex items-center justify-center text-xl mb-3">🎯</span>
+              <span className="w-10 h-10 rounded-xl bg-[#4F9D69]/10 text-[#4F9D69] dark:bg-[#35D07F]/15 dark:text-[#35D07F] flex items-center justify-center mb-3">
+                <Target size={20} />
+              </span>
               <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>Goals</p>
               <p className={`text-xs mt-0.5 font-medium ${t.muted}`}>Savings targets</p>
             </button>
@@ -595,12 +679,14 @@ export default function Tracker() {
             <button onClick={() => navigateTo("/ai")}
               className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 text-left shadow-2xs active:scale-98 transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 col-span-2 animate-fade-slide-up-5`}>
               <div className="flex items-center gap-3.5">
-                <span className="w-10 h-10 rounded-xl bg-[#8B7CF6]/15 text-[#8B7CF6] flex items-center justify-center text-xl shrink-0">🤖</span>
+                <span className="w-10 h-10 rounded-xl bg-[#8B7CF6]/15 text-[#8B7CF6] flex items-center justify-center shrink-0">
+                  <Bot size={20} />
+                </span>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>AI Spending Insights</p>
                   <p className={`text-xs font-medium ${t.muted}`}>Smart expenditure analysis & smart budget recommendations</p>
                 </div>
-                <span className={`text-xs font-bold ${t.muted}`}>→</span>
+                <ArrowRight size={16} className={t.muted} />
               </div>
             </button>
           </div>
@@ -615,7 +701,7 @@ export default function Tracker() {
         <MonthlyView data={monthlyData} displayMode={displayMode} setDisplayMode={changeDisplayMode} onBack={() => setView("menu")} tokens={t} />
       )}
       {view === "history" && (
-        <HistoryView data={expenses} displayMode={displayMode} setDisplayMode={changeDisplayMode} onBack={() => setView("menu")} onDelete={handleDelete} onEdit={openEdit} tokens={t} />
+        <HistoryView data={expenses} displayMode={displayMode} setDisplayMode={changeDisplayMode} onBack={() => setView("menu")} onDelete={promptDeleteExpense} onEdit={openEdit} tokens={t} />
       )}
       {view === "dashboard" && (
         <DashboardView data={expenses} onBack={() => setView("menu")} tokens={t} />
@@ -630,7 +716,9 @@ export default function Tracker() {
             <div className={`flex items-center justify-between px-5 py-4 border-b ${t.border}`}>
               <h2 className={`text-base font-extrabold ${t.text}`}>Edit Expense</h2>
               <button onClick={() => setEditingExpense(null)}
-                className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold opacity-60 hover:opacity-100 transition-colors ${t.btn.secondary}`}>✕</button>
+                className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold opacity-60 hover:opacity-100 transition-colors ${t.btn.secondary}`}>
+                <X size={14} />
+              </button>
             </div>
             <div className="p-5 space-y-3.5">
               <div className="grid grid-cols-2 gap-3">

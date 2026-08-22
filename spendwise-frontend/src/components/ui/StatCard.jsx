@@ -1,8 +1,7 @@
 // src/components/ui/StatCard.jsx
-// Reusable metric card for dashboard stats.
-// Props: label, value, subLabel, icon (emoji or text), tokens, accent
+// Reusable metric card for dashboard stats supporting Lucide icon components.
 
-export default function StatCard({ label, value, subLabel, icon, tokens, accent = false }) {
+export default function StatCard({ label, value, subLabel, icon: Icon, tokens, accent = false }) {
   return (
     <div
       className={`
@@ -15,14 +14,18 @@ export default function StatCard({ label, value, subLabel, icon, tokens, accent 
         <span className={`text-[11px] font-bold uppercase tracking-wider ${tokens.muted}`}>
           {label}
         </span>
-        {icon && (
+        {Icon && (
           <span className="w-7 h-7 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center text-sm" aria-hidden="true">
-            {icon}
+            {typeof Icon === "function" || (typeof Icon === "object" && Icon !== null) ? (
+              <Icon size={15} className={accent ? "text-[#354F52] dark:text-[#22D3EE]" : tokens.text} />
+            ) : (
+              Icon
+            )}
           </span>
         )}
       </div>
 
-      <div className={`text-2xl font-extrabold tracking-tight tabular-nums ${tokens.text}`}>
+      <div className={`text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums ${tokens.text}`}>
         {value}
       </div>
 

@@ -1,10 +1,22 @@
 // src/components/expense/HistoryView.jsx
-// Redesigned: theme-aware via tokens prop, mobile-friendly, consistent button sizes.
+// Redesigned: theme-aware via tokens prop, mobile-friendly, consistent button sizes and Lucide icons.
 
 import { useState } from "react";
 import { exportToCSV } from "../../utils/exportCsv";
 import { exportToPDF } from "../../utils/exportPdf";
 import { EXPENSE_CATEGORIES } from "../../config/themeConfig";
+import {
+  Table as TableIcon,
+  LayoutGrid,
+  FileSpreadsheet,
+  FileText,
+  Inbox,
+  X,
+  Pencil,
+  Trash2,
+  ArrowLeft,
+  Search,
+} from "lucide-react";
 
 export default function HistoryView({
   data,
@@ -18,7 +30,6 @@ export default function HistoryView({
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("ALL");
 
-  // tokens fallback so the component works even without tokens passed
   const t = tokens || {
     text: "text-gray-900", muted: "text-gray-500", label: "text-gray-600",
     card: "bg-white", surface: "bg-gray-50", border: "border-gray-200",
@@ -61,7 +72,7 @@ export default function HistoryView({
           />
           {search && (
             <button onClick={() => setSearch("")} className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold ${t.muted}`}>
-              ✕
+              <X size={14} />
             </button>
           )}
         </div>
@@ -81,15 +92,19 @@ export default function HistoryView({
       <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
         {/* Display mode toggle */}
         <div className={`inline-flex rounded-xl overflow-hidden border ${t.border} p-0.5 bg-black/5 dark:bg-white/5`}>
-          {["table", "card"].map((mode) => (
+          {[
+            { mode: "table", label: "Table", icon: TableIcon },
+            { mode: "card",  label: "Cards", icon: LayoutGrid },
+          ].map(({ mode, label, icon: ModeIcon }) => (
             <button
               key={mode}
               onClick={() => setDisplayMode(mode)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 flex items-center gap-1.5 ${
                 displayMode === mode ? `${t.btn.primary} shadow-2xs` : "opacity-60 hover:opacity-100"
               }`}
             >
-              {mode === "table" ? "📋 Table" : "📦 Cards"}
+              <ModeIcon size={14} />
+              <span>{label}</span>
             </button>
           ))}
         </div>
@@ -97,16 +112,18 @@ export default function HistoryView({
         <div className="flex gap-1.5">
           <button
             onClick={() => exportToCSV(filteredData, "expense-history.csv")}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.success}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.success}`}
           >
-            <span>⬇</span> CSV
+            <FileSpreadsheet size={14} />
+            <span>CSV</span>
           </button>
 
           <button
             onClick={() => exportToPDF(filteredData, "Expense History", "expense-history.pdf")}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.primary}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all ${t.btn.primary}`}
           >
-            <span>⬇</span> PDF
+            <FileText size={14} />
+            <span>PDF</span>
           </button>
         </div>
       </div>
@@ -134,8 +151,10 @@ export default function HistoryView({
       <div className="space-y-4 animate-fade-slide-up">
         <Header title="Expense History" onBack={onBack} t={t} />
         <Toolbar />
-        <div className={`text-center py-16 ${t.muted}`}>
-          <p className="text-3xl mb-2">📭</p>
+        <div className={`text-center py-16 ${t.muted} space-y-2`}>
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
+            <Inbox size={24} />
+          </div>
           <p className="text-sm font-semibold">No expenses match your search</p>
         </div>
       </div>
@@ -177,15 +196,17 @@ export default function HistoryView({
                     <div className="flex gap-1.5 justify-center">
                       <button
                         onClick={() => onEdit(e)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.primary} active:scale-95 transition-all`}
+                        className={`p-1.5 rounded-lg text-xs font-bold ${t.btn.primary} active:scale-95 transition-all flex items-center gap-1`}
+                        title="Edit expense"
                       >
-                        Edit
+                        <Pencil size={13} />
                       </button>
                       <button
                         onClick={() => onDelete(e.id)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.danger} active:scale-95 transition-all`}
+                        className={`p-1.5 rounded-lg text-xs font-bold ${t.btn.danger} active:scale-95 transition-all flex items-center gap-1`}
+                        title="Delete expense"
                       >
-                        Del
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>
@@ -225,15 +246,17 @@ export default function HistoryView({
               <div className="flex gap-1.5">
                 <button
                   onClick={() => onEdit(e)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.primary} active:scale-95 transition-all`}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold ${t.btn.primary} active:scale-95 transition-all flex items-center gap-1`}
                 >
-                  Edit
+                  <Pencil size={12} />
+                  <span>Edit</span>
                 </button>
                 <button
                   onClick={() => onDelete(e.id)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.danger} active:scale-95 transition-all`}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold ${t.btn.danger} active:scale-95 transition-all flex items-center gap-1`}
                 >
-                  Del
+                  <Trash2 size={12} />
+                  <span>Delete</span>
                 </button>
               </div>
             </div>
@@ -244,13 +267,13 @@ export default function HistoryView({
   );
 }
 
-// ── Shared sub-components ────────────────────────────────────────────────────
 function Header({ title, onBack, t }) {
   return (
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
-        <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}>
-          ← Back
+        <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}>
+          <ArrowLeft size={13} />
+          <span>Back</span>
         </button>
         <h2 className={`text-xl font-black tracking-tight ${t.text}`}>{title}</h2>
       </div>

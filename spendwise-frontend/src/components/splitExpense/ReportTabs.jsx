@@ -1,5 +1,5 @@
 // src/components/splitExpense/ReportTabs.jsx
-// 4-tab report: Expenses, Settlement, Matrix, Summary.
+// 4-tab report: Expenses, Settlement, Matrix, Summary with Lucide icons.
 
 import { useState } from "react";
 import ExpenseList    from "./ExpenseList";
@@ -10,6 +10,7 @@ import { generateSettlement } from "../../utils/split/calculateSettlement";
 import { calculateMatrix }    from "../../utils/split/calculateMatrix";
 import { calculateSummary }   from "../../utils/split/calculateSummary";
 import { generateSplitPDF }   from "../../utils/split/generatePdf";
+import { Plus, FileText, Trash2, ArrowLeft } from "lucide-react";
 
 const TABS = ["Expenses", "Settlement", "Matrix", "Summary"];
 
@@ -26,16 +27,6 @@ export default function ReportTabs({ event, onAddExpense, onEditExpense, onDelet
     generateSplitPDF({ event, settlements, matrix, summary });
   };
 
-  const handleDeleteExpense = (id) => {
-    if (!window.confirm("Delete this expense?")) return;
-    onDeleteExpense(id);
-  };
-
-  const handleDeleteEvent = () => {
-    if (!window.confirm(`Delete "${event.eventName}" and all its data? This cannot be undone.`)) return;
-    onDeleteEvent(event.id);
-  };
-
   return (
     <div className="space-y-4 animate-fade-slide-up">
       {/* Header */}
@@ -47,8 +38,9 @@ export default function ReportTabs({ event, onAddExpense, onEditExpense, onDelet
               {event.participants.length} participants · {event.expenses.length} expenses
             </p>
           </div>
-          <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}>
-            ← All Events
+          <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}>
+            <ArrowLeft size={13} />
+            <span>All Events</span>
           </button>
         </div>
       </div>
@@ -56,16 +48,19 @@ export default function ReportTabs({ event, onAddExpense, onEditExpense, onDelet
       {/* Action buttons */}
       <div className="flex gap-2 flex-wrap animate-fade-slide-up-1">
         <button onClick={onAddExpense}
-          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs`}>
-          + Add Expense
+          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs flex items-center gap-1.5`}>
+          <Plus size={14} />
+          <span>Add Expense</span>
         </button>
         <button onClick={handleDownloadPDF}
-          className={`${t.btn.success} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all`}>
-          ⬇ PDF Report
+          className={`${t.btn.success} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all flex items-center gap-1.5`}>
+          <FileText size={14} />
+          <span>PDF Report</span>
         </button>
-        <button onClick={handleDeleteEvent}
-          className={`${t.btn.danger} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all`}>
-          Delete Event
+        <button onClick={onDeleteEvent}
+          className={`${t.btn.danger} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all flex items-center gap-1.5`}>
+          <Trash2 size={14} />
+          <span>Delete Event</span>
         </button>
       </div>
 
@@ -86,7 +81,7 @@ export default function ReportTabs({ event, onAddExpense, onEditExpense, onDelet
             expenses={event.expenses}
             participants={event.participants}
             onEdit={onEditExpense}
-            onDelete={handleDeleteExpense}
+            onDelete={onDeleteExpense}
             tokens={t}
           />
         )}

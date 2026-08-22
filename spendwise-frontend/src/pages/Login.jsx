@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
 import ThemeSelector from "../components/ui/ThemeSelector";
+import Logo from "../components/ui/Logo";
+import { Sparkles, AlertCircle, LogIn, UserPlus, ArrowRight, User as UserIcon, Lock } from "lucide-react";
 
 export default function Login() {
   const { login, register, loading } = useAuth();
@@ -47,15 +49,7 @@ export default function Login() {
     <div className={`min-h-screen w-full flex flex-col justify-between ${t.bg} ${t.text} transition-colors duration-200 p-4 sm:p-6`}>
       {/* Top Header */}
       <header className="w-full max-w-md mx-auto flex items-center justify-between pt-2 pb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-[#14B8A6] to-[#22D3EE] flex items-center justify-center text-[#080D12] text-base font-bold shadow-md shadow-[#22D3EE]/20">
-            💳
-          </div>
-          <div>
-            <h1 className={`text-lg font-black tracking-tight ${t.text}`}>SpendWise</h1>
-            <p className={`text-[10px] font-medium ${t.muted}`}>Smart Expense Tracker</p>
-          </div>
-        </div>
+        <Logo variant="full" size="sm" />
         <ThemeSelector theme={theme} setTheme={setTheme} />
       </header>
 
@@ -79,24 +73,26 @@ export default function Login() {
             <button
               type="button"
               onClick={() => { setMode("login"); setError(""); }}
-              className={`flex-1 py-2 rounded-lg transition-all ${
+              className={`flex-1 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 mode === "login"
                   ? "bg-white text-[#2F3E46] dark:bg-[#17242D] dark:text-[#22D3EE] shadow-xs scale-102"
                   : `${t.muted} hover:opacity-100`
               }`}
             >
-              Sign In
+              <LogIn size={14} />
+              <span>Sign In</span>
             </button>
             <button
               type="button"
               onClick={() => { setMode("register"); setError(""); }}
-              className={`flex-1 py-2 rounded-lg transition-all ${
+              className={`flex-1 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 mode === "register"
                   ? "bg-white text-[#2F3E46] dark:bg-[#17242D] dark:text-[#22D3EE] shadow-xs scale-102"
                   : `${t.muted} hover:opacity-100`
               }`}
             >
-              Register
+              <UserPlus size={14} />
+              <span>Register</span>
             </button>
           </div>
 
@@ -105,7 +101,7 @@ export default function Login() {
             <div className="p-3 rounded-2xl bg-[#22D3EE]/10 border border-[#22D3EE]/30 flex items-start justify-between gap-2">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs">✨</span>
+                  <Sparkles size={14} className="text-[#22D3EE]" />
                   <p className="text-[11px] font-extrabold text-[#22D3EE] uppercase tracking-wider">Public Demo Account</p>
                 </div>
                 <p className={`text-[11px] ${t.muted}`}>
@@ -116,7 +112,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={handleFillDemo}
-                  className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#22D3EE]/20 text-[#22D3EE] hover:bg-[#22D3EE]/30 shrink-0 transition-colors"
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-[#22D3EE]/20 text-[#22D3EE] hover:bg-[#22D3EE]/30 shrink-0 transition-colors"
                 >
                   Fill Demo
                 </button>
@@ -127,7 +123,7 @@ export default function Login() {
           {/* Error Message */}
           {error && (
             <div className="p-3 rounded-xl bg-[#FF5C5C]/15 border border-[#FF5C5C]/40 text-[#FF5C5C] text-xs font-bold flex items-center gap-2 animate-fade-slide-up">
-              <span>⚠️</span>
+              <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -135,8 +131,9 @@ export default function Login() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>
-                Username
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted} flex items-center gap-1`}>
+                <UserIcon size={12} />
+                <span>Username</span>
               </label>
               <input
                 type="text"
@@ -150,8 +147,9 @@ export default function Login() {
             </div>
 
             <div className="space-y-1">
-              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>
-                Password
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted} flex items-center gap-1`}>
+                <Lock size={12} />
+                <span>Password</span>
               </label>
               <input
                 type="password"
@@ -177,9 +175,15 @@ export default function Login() {
                   <span>Authenticating…</span>
                 </>
               ) : mode === "login" ? (
-                isDemoFilled ? "🚀 Login as Demo" : "Login"
+                <>
+                  <LogIn size={16} />
+                  <span>{isDemoFilled ? "Login as Demo" : "Login"}</span>
+                </>
               ) : (
-                "Create Account"
+                <>
+                  <UserPlus size={16} />
+                  <span>Create Account</span>
+                </>
               )}
             </button>
           </form>
@@ -192,11 +196,14 @@ export default function Login() {
                 setMode((m) => (m === "login" ? "register" : "login"));
                 setError("");
               }}
-              className={`text-xs font-semibold ${t.muted} hover:underline`}
+              className={`text-xs font-semibold ${t.muted} hover:underline inline-flex items-center gap-1`}
             >
-              {mode === "login"
-                ? "Need a private account? Create one →"
-                : "Already have an account? Sign in →"}
+              <span>
+                {mode === "login"
+                  ? "Need a private account? Create one"
+                  : "Already have an account? Sign in"}
+              </span>
+              <ArrowRight size={13} />
             </button>
           </div>
         </div>

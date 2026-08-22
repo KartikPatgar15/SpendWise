@@ -1,5 +1,7 @@
 // src/components/splitExpense/ExpenseList.jsx
-// Displays all expenses in the report with edit/delete actions.
+// Displays all expenses in the report with edit/delete actions and Lucide icons.
+
+import { Pencil, Trash2, Receipt } from "lucide-react";
 
 export default function ExpenseList({ expenses, participants, onEdit, onDelete, tokens }) {
   const t = tokens;
@@ -7,10 +9,12 @@ export default function ExpenseList({ expenses, participants, onEdit, onDelete, 
 
   if (expenses.length === 0) {
     return (
-      <div className={`text-center py-16 ${t.muted}`}>
-        <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">📋</div>
+      <div className={`text-center py-16 ${t.muted} space-y-2`}>
+        <div className="w-14 h-14 mx-auto mb-1 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">
+          <Receipt size={28} className={t.muted} />
+        </div>
         <p className="text-sm font-bold">No expenses added yet</p>
-        <p className="text-xs mt-0.5">Tap "+ Add Expense" above to record a split item</p>
+        <p className="text-xs">Tap "+ Add Expense" above to record a split item</p>
       </div>
     );
   }
@@ -58,12 +62,14 @@ export default function ExpenseList({ expenses, participants, onEdit, onDelete, 
             </div>
             <div className="flex gap-2 pt-2 border-t border-black/5 dark:border-white/5 justify-end">
               <button onClick={() => onEdit(exp)}
-                className={`${t.btn.primary} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all`}>
-                Edit
+                className={`${t.btn.primary} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center gap-1`}>
+                <Pencil size={12} />
+                <span>Edit</span>
               </button>
-              <button onClick={() => onDelete(exp.id)}
-                className={`${t.btn.danger} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all`}>
-                Delete
+              <button onClick={() => onDelete(exp.id, exp.expenseName)}
+                className={`${t.btn.danger} px-3.5 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center gap-1`}>
+                <Trash2 size={12} />
+                <span>Delete</span>
               </button>
             </div>
           </div>

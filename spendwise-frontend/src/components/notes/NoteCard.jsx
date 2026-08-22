@@ -1,6 +1,8 @@
 // src/components/notes/NoteCard.jsx
+// Note card with Pin, Favorite, Delete actions using Lucide icons.
 
 import { NOTE_COLORS, NOTE_COLORS_DARK } from "./ColorPicker";
+import { Pin, Star, Trash2 } from "lucide-react";
 
 function stripHtml(html) {
   return (html || "")
@@ -28,14 +30,18 @@ export default function NoteCard({ note, onClick, onPin, onFavorite, onDelete, i
         <div className="flex gap-1.5 shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); onPin(note.id); }}
-            className={`text-xs p-1 rounded-lg transition-all active:scale-90 ${note.pinned ? "text-[#52796F] bg-[#52796F]/15" : "opacity-40 hover:opacity-100"}`}
+            className={`p-1.5 rounded-lg transition-all active:scale-90 ${note.pinned ? "text-[#52796F] bg-[#52796F]/15 dark:text-[#22D3EE] dark:bg-[#22D3EE]/15" : "opacity-40 hover:opacity-100"}`}
             title="Pin note"
-          >📌</button>
+          >
+            <Pin size={13} strokeWidth={note.pinned ? 2.5 : 1.8} />
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onFavorite(note.id); }}
-            className={`text-xs p-1 rounded-lg transition-all active:scale-90 ${note.favorite ? "text-[#D88C9A] bg-[#D88C9A]/20" : "opacity-40 hover:opacity-100"}`}
+            className={`p-1.5 rounded-lg transition-all active:scale-90 ${note.favorite ? "text-[#D88C9A] bg-[#D88C9A]/20 fill-[#D88C9A]" : "opacity-40 hover:opacity-100"}`}
             title="Favorite"
-          >⭐</button>
+          >
+            <Star size={13} className={note.favorite ? "fill-current" : ""} />
+          </button>
         </div>
       </div>
 
@@ -54,10 +60,12 @@ export default function NoteCard({ note, onClick, onPin, onFavorite, onDelete, i
             {new Date(note.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
           </span>
           <button
-            onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
-            className="text-xs opacity-40 hover:opacity-100 hover:text-[#E07A5F] transition-all active:scale-90 p-0.5"
+            onClick={(e) => { e.stopPropagation(); onDelete(note.id, note.title || "Untitled Note"); }}
+            className="p-1 rounded-lg opacity-40 hover:opacity-100 hover:text-[#E07A5F] transition-all active:scale-90"
             title="Delete"
-          >🗑</button>
+          >
+            <Trash2 size={13} />
+          </button>
         </div>
       </div>
     </div>

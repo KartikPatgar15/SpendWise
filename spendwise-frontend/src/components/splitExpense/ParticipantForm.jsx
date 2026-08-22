@@ -1,11 +1,12 @@
 // src/components/splitExpense/ParticipantForm.jsx
-// Add/remove participants before any expense is added.
+// Add/remove participants with Lucide icons.
 
 import { useState } from "react";
 import { generateId } from "../../utils/split/storage";
 import { validateParticipants, validateParticipantName } from "../../utils/split/validation";
+import { Lock, Plus, X, ArrowRight, ArrowLeft } from "lucide-react";
 
-export default function ParticipantForm({ event, onUpdate, onConfirm, tokens }) {
+export default function ParticipantForm({ event, onUpdate, onConfirm, onBack, tokens }) {
   const t = tokens;
   const [newName, setNewName] = useState("");
   const [error, setError]     = useState("");
@@ -40,11 +41,20 @@ export default function ParticipantForm({ event, onUpdate, onConfirm, tokens }) 
           <h2 className={`text-xl font-black tracking-tight ${t.text}`}>{event.eventName}</h2>
           <p className={`text-xs font-medium mt-0.5 ${t.muted}`}>Add at least 2 participants to split expenses</p>
         </div>
-        {locked && (
-          <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
-            🔒 Locked
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {onBack && (
+            <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-1`}>
+              <ArrowLeft size={13} />
+              <span>Back</span>
+            </button>
+          )}
+          {locked && (
+            <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20 flex items-center gap-1">
+              <Lock size={11} />
+              <span>Locked</span>
+            </span>
+          )}
+        </div>
       </div>
 
       {!locked && (
@@ -60,8 +70,9 @@ export default function ParticipantForm({ event, onUpdate, onConfirm, tokens }) 
               className={`border rounded-xl px-3.5 py-2.5 text-xs font-medium flex-1 focus:outline-none transition-all duration-150 ${t.input}`}
             />
             <button onClick={handleAdd}
-              className={`${t.btn.primary} px-4 py-2.5 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition-all`}>
-              + Add
+              className={`${t.btn.primary} px-4 py-2.5 rounded-xl text-xs font-extrabold shrink-0 active:scale-95 transition-all flex items-center gap-1`}>
+              <Plus size={14} />
+              <span>Add</span>
             </button>
           </div>
           {error && <p className="text-xs font-semibold text-rose-500">{error}</p>}
@@ -91,8 +102,8 @@ export default function ParticipantForm({ event, onUpdate, onConfirm, tokens }) 
               {!locked && (
                 <button onClick={() => handleRemove(p.id)}
                   title="Remove person"
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold opacity-70 hover:opacity-100 active:scale-90 transition-all ${t.btn.danger}`}>
-                  ✕
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center opacity-70 hover:opacity-100 active:scale-90 transition-all ${t.btn.danger}`}>
+                  <X size={13} />
                 </button>
               )}
             </div>
@@ -103,9 +114,10 @@ export default function ParticipantForm({ event, onUpdate, onConfirm, tokens }) 
       <button
         onClick={handleConfirm}
         disabled={participants.length < 2}
-        className={`${t.btn.primary} w-full py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-sm active:scale-98 transition-all ${participants.length < 2 ? "opacity-50 cursor-not-allowed" : ""}`}
+        className={`${t.btn.primary} w-full py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-sm active:scale-98 transition-all flex items-center justify-center gap-1.5 ${participants.length < 2 ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        Continue to Add Expenses →
+        <span>Continue to Add Expenses</span>
+        <ArrowRight size={14} />
       </button>
 
       {locked && (

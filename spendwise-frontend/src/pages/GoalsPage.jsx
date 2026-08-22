@@ -1,21 +1,32 @@
 // src/pages/GoalsPage.jsx
-// Phase 3 — Savings goals page.
+// Savings goals page with Lucide icons and ConfirmModal for deletions.
 
 import { useEffect, useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { useSavingsGoals } from "../hooks/useSavingsGoals";
 import { formatRupees } from "../utils/expenseHelpers";
+import ConfirmModal from "../components/ui/ConfirmModal";
+import { Target, Plus, X, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const emptyForm = { name: "", targetAmount: "", targetDate: "" };
 
 export default function GoalsPage() {
   const { tokens: t } = useTheme();
+  const navigate = useNavigate();
   const { goals, loading, fetchGoals, addGoal, contribute, deleteGoal } = useSavingsGoals();
   const [showForm, setShowForm]         = useState(false);
   const [form, setForm]                 = useState(emptyForm);
   const [contributeId, setContributeId] = useState(null);
   const [contributeAmt, setContributeAmt] = useState("");
   const [saving, setSaving]             = useState(false);
+
+  // Single Delete Confirmation State
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    id: null,
+    name: "",
+  });
 
   useEffect(() => { fetchGoals(); }, [fetchGoals]);
 
@@ -38,14 +49,42 @@ export default function GoalsPage() {
     setContributeAmt("");
   };
 
+  const promptDelete = (id, name) => {
+    setDeleteConfirm({
+      isOpen: true,
+      id,
+      name,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.id) return;
+    await deleteGoal(deleteConfirm.id);
+    setDeleteConfirm({ isOpen: false, id: null, name: "" });
+  };
+
   return (
     <div className={`min-h-screen ${t.bg} ${t.text} px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full space-y-6 animate-fade-slide-up transition-colors`}>
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Savings Goal"
+        message={`Are you sure you want to delete the "${deleteConfirm.name}" goal?`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ isOpen: false, id: null, name: "" })}
+        danger={true}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className={`p-2 rounded-xl ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`} title="Go back">
+            <ArrowLeft size={18} />
+          </button>
           <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-lg shadow-md shadow-emerald-500/20">
-            🎯
+            <Target size={20} strokeWidth={2.2} />
           </div>
           <div>
             <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>Savings Goals</h1>
@@ -53,8 +92,18 @@ export default function GoalsPage() {
           </div>
         </div>
         <button onClick={() => setShowForm((v) => !v)}
-          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs`}>
-          {showForm ? "✕ Cancel" : "+ New Goal"}
+          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs flex items-center gap-1.5`}>
+          {showForm ? (
+            <>
+              <X size={14} />
+              <span>Cancel</span>
+            </>
+          ) : (
+            <>
+              <Plus size={14} />
+              <span>New Goal</span>
+            </>
+          )}
         </button>
       </div>
 
@@ -86,8 +135,9 @@ export default function GoalsPage() {
           </div>
 
           <button onClick={handleSave} disabled={saving}
-            className={`${t.btn.primary} w-full py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-sm ${saving ? "opacity-60" : ""}`}>
-            Create Goal
+            className={`${t.btn.primary} w-full py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-sm flex items-center justify-center gap-1.5 ${saving ? "opacity-60" : ""}`}>
+            <Plus size={14} />
+            <span>Create Goal</span>
           </button>
         </div>
       )}
@@ -100,10 +150,12 @@ export default function GoalsPage() {
       )}
 
       {!loading && goals.length === 0 && (
-        <div className={`text-center py-16 ${t.muted} animate-fade-in`}>
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">🎯</div>
+        <div className={`text-center py-16 ${t.muted} animate-fade-in space-y-2`}>
+          <div className="w-14 h-14 mx-auto mb-1 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
+            <Target size={28} className={t.muted} />
+          </div>
           <p className="text-sm font-bold">No savings goals yet</p>
-          <p className="text-xs mt-0.5 opacity-75">Tap "+ New Goal" above to start building your savings</p>
+          <p className="text-xs opacity-75">Tap "+ New Goal" above to start building your savings</p>
         </div>
       )}
 
@@ -127,9 +179,9 @@ export default function GoalsPage() {
                       </p>
                     )}
                   </div>
-                  <button onClick={() => deleteGoal(g.id)}
+                  <button onClick={() => promptDelete(g.id, g.name)}
                     className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold opacity-60 hover:opacity-100 hover:text-rose-500 active:scale-90 transition-all ${t.btn.secondary}`}>
-                    ✕
+                    <X size={13} />
                   </button>
                 </div>
 
@@ -161,13 +213,14 @@ export default function GoalsPage() {
                     </button>
                     <button onClick={() => setContributeId(null)}
                       className={`${t.btn.secondary} px-3 py-2 rounded-xl text-xs font-semibold shrink-0`}>
-                      ✕
+                      <X size={13} />
                     </button>
                   </div>
                 ) : (
                   <button onClick={() => { setContributeId(g.id); setContributeAmt(""); }}
-                    className={`${t.btn.success} w-full py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-2xs`}>
-                    + Add Funds
+                    className={`${t.btn.success} w-full py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-2xs flex items-center justify-center gap-1`}>
+                    <Plus size={13} />
+                    <span>Add Funds</span>
                   </button>
                 )}
               </div>

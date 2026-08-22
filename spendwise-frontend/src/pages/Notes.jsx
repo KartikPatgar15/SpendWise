@@ -1,6 +1,5 @@
 // src/pages/Notes.jsx
-// Notes module orchestrator — Home, Editor, Trash screens.
-// Does NOT modify any other existing page or component.
+// Notes module orchestrator with ThemeSelector, Logo, and single ConfirmModal.
 
 import { useState, useMemo } from "react";
 import { useTheme } from "../hooks/useTheme";
@@ -11,11 +10,14 @@ import {
 import NotesHome   from "../components/notes/NotesHome";
 import NoteEditor  from "../components/notes/NoteEditor";
 import TrashView   from "../components/notes/TrashView";
+import ThemeSelector from "../components/ui/ThemeSelector";
+import ConfirmModal from "../components/ui/ConfirmModal";
+import Logo from "../components/ui/Logo";
 
 const SCREEN = { HOME: "home", EDITOR: "editor", TRASH: "trash" };
 
 export default function Notes() {
-  const { tokens: t, theme } = useTheme();
+  const { tokens: t, theme, setTheme } = useTheme();
   const isDark = theme === "dark" || theme === "grey";
 
   const [screen, setScreen]         = useState(SCREEN.HOME);
@@ -24,6 +26,14 @@ export default function Notes() {
   const [trash, setTrash]           = useState(() => loadTrash());
   const [search, setSearch]         = useState("");
   const [category, setCategory]     = useState("All");
+
+  // Single Delete Confirmation state
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+  });
 
   // ── Derived filtered notes ────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -72,11 +82,19 @@ export default function Notes() {
     refreshNotes();
   };
 
-  const handleDelete = (id) => {
-    deleteNote(id);
-    refreshNotes();
-    refreshTrash();
-    if (activeNote?.id === id) setScreen(SCREEN.HOME);
+  const promptDeleteNote = (id, title = "this note") => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: "Move Note to Trash",
+      message: `Move "${title}" to trash? You can restore it later from the trash tab.`,
+      onConfirm: () => {
+        deleteNote(id);
+        refreshNotes();
+        refreshTrash();
+        if (activeNote?.id === id) setScreen(SCREEN.HOME);
+        setDeleteConfirm((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   const handlePin = (id) => {
@@ -100,15 +118,34 @@ export default function Notes() {
     refreshTrash();
   };
 
-  const handleDeleteForever = (id) => {
-    if (!window.confirm("Delete this note forever? This cannot be undone.")) return;
-    deletePermanently(id);
-    refreshTrash();
+  const promptDeleteForever = (id, title = "this note") => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: "Delete Permanently",
+      message: `Are you sure you want to permanently delete "${title}"? This cannot be undone.`,
+      onConfirm: () => {
+        deletePermanently(id);
+        refreshTrash();
+        setDeleteConfirm((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className={`min-h-screen ${t.bg} ${t.text} transition-colors`}>
+      {/* Reusable Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={deleteConfirm.onConfirm}
+        onCancel={() => setDeleteConfirm((prev) => ({ ...prev, isOpen: false }))}
+        danger={true}
+      />
+
       {screen === SCREEN.EDITOR && activeNote ? (
         <NoteEditor
           note={activeNote}
@@ -119,16 +156,26 @@ export default function Notes() {
         />
       ) : screen === SCREEN.TRASH ? (
         <div className={`px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full animate-fade-in`}>
+          {/* Header with Logo and ThemeSelector */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5 dark:border-white/5">
+            <Logo variant="auto" size="md" />
+            <ThemeSelector theme={theme} setTheme={setTheme} />
+          </div>
           <TrashView
             trash={trash}
             onRestore={handleRestore}
-            onDeleteForever={handleDeleteForever}
+            onDeleteForever={(id, title) => promptDeleteForever(id, title)}
             onBack={() => setScreen(SCREEN.HOME)}
             tokens={t}
           />
         </div>
       ) : (
         <div className={`px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full animate-fade-in`}>
+          {/* Header with Logo and ThemeSelector */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5 dark:border-white/5 animate-fade-slide-up">
+            <Logo variant="auto" size="md" />
+            <ThemeSelector theme={theme} setTheme={setTheme} />
+          </div>
           <NotesHome
             notes={{
               _all:         notes,
@@ -142,7 +189,7 @@ export default function Notes() {
             onNewNote={handleNewNote}
             onPin={handlePin}
             onFavorite={handleFavorite}
-            onDelete={handleDelete}
+            onDelete={(id, title) => promptDeleteNote(id, title)}
             onTrash={() => { refreshTrash(); setScreen(SCREEN.TRASH); }}
             tokens={t}
             isDark={isDark}

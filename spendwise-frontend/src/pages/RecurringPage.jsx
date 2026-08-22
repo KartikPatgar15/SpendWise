@@ -1,11 +1,14 @@
 // src/pages/RecurringPage.jsx
-// Phase 3 — Manage recurring expenses.
+// Manage recurring expenses with Lucide icons and ConfirmModal for deletions.
 
 import { useEffect, useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { useRecurring } from "../hooks/useRecurring";
 import { EXPENSE_CATEGORIES } from "../config/themeConfig";
 import { formatRupees } from "../utils/expenseHelpers";
+import ConfirmModal from "../components/ui/ConfirmModal";
+import { Repeat, Plus, X, ArrowLeft, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const FREQUENCIES = ["DAILY", "WEEKLY", "MONTHLY"];
 const DAYS_OF_WEEK  = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -14,10 +17,18 @@ const emptyForm = { description: "", amount: "", type: "FOOD", frequency: "MONTH
 
 export default function RecurringPage() {
   const { tokens: t } = useTheme();
+  const navigate = useNavigate();
   const { recurring, loading, fetchRecurring, addRecurring, deleteRecurring } = useRecurring();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm]         = useState(emptyForm);
   const [saving, setSaving]     = useState(false);
+
+  // Single Delete Confirmation State
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    id: null,
+    name: "",
+  });
 
   useEffect(() => { fetchRecurring(); }, [fetchRecurring]);
 
@@ -33,6 +44,20 @@ export default function RecurringPage() {
     } finally { setSaving(false); }
   };
 
+  const promptDelete = (id, name) => {
+    setDeleteConfirm({
+      isOpen: true,
+      id,
+      name,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.id) return;
+    await deleteRecurring(deleteConfirm.id);
+    setDeleteConfirm({ isOpen: false, id: null, name: "" });
+  };
+
   const freqLabel = (r) => {
     if (r.frequency === "DAILY")   return "Every day";
     if (r.frequency === "WEEKLY")  return `Every ${DAYS_OF_WEEK[(r.dayOf || 1) - 1]}`;
@@ -42,12 +67,26 @@ export default function RecurringPage() {
 
   return (
     <div className={`min-h-screen ${t.bg} ${t.text} px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full space-y-6 animate-fade-slide-up transition-colors`}>
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Recurring Bill"
+        message={`Are you sure you want to stop and delete the recurring bill for "${deleteConfirm.name}"?`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ isOpen: false, id: null, name: "" })}
+        danger={true}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
         <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className={`p-2 rounded-xl ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`} title="Go back">
+            <ArrowLeft size={18} />
+          </button>
           <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-lg shadow-md shadow-purple-500/20">
-            🔁
+            <Repeat size={20} strokeWidth={2.2} />
           </div>
           <div>
             <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>Recurring Expenses</h1>
@@ -55,8 +94,18 @@ export default function RecurringPage() {
           </div>
         </div>
         <button onClick={() => setShowForm((v) => !v)}
-          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs`}>
-          {showForm ? "✕ Cancel" : "+ Add Bill"}
+          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs flex items-center gap-1.5`}>
+          {showForm ? (
+            <>
+              <X size={14} />
+              <span>Cancel</span>
+            </>
+          ) : (
+            <>
+              <Plus size={14} />
+              <span>Add Bill</span>
+            </>
+          )}
         </button>
       </div>
 
@@ -126,8 +175,9 @@ export default function RecurringPage() {
           </div>
 
           <button onClick={handleSave} disabled={saving}
-            className={`${t.btn.primary} w-full py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-sm ${saving ? "opacity-60" : ""}`}>
-            Save Recurring Expense
+            className={`${t.btn.primary} w-full py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-sm flex items-center justify-center gap-1.5 ${saving ? "opacity-60" : ""}`}>
+            <Plus size={14} />
+            <span>Save Recurring Expense</span>
           </button>
         </div>
       )}
@@ -142,10 +192,12 @@ export default function RecurringPage() {
 
       {/* Empty */}
       {!loading && recurring.length === 0 && (
-        <div className={`text-center py-16 ${t.muted} animate-fade-in`}>
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">🔁</div>
+        <div className={`text-center py-16 ${t.muted} animate-fade-in space-y-2`}>
+          <div className="w-14 h-14 mx-auto mb-1 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">
+            <Repeat size={28} className={t.muted} />
+          </div>
           <p className="text-sm font-bold">No recurring bills recorded</p>
-          <p className="text-xs mt-0.5 opacity-75">Add subscriptions, house rent, utilities or EMIs above</p>
+          <p className="text-xs opacity-75">Add subscriptions, house rent, utilities or EMIs above</p>
         </div>
       )}
 
@@ -164,9 +216,10 @@ export default function RecurringPage() {
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/5">
                 <span className={`text-base font-black tabular-nums ${t.text}`}>{formatRupees(r.amount)}</span>
-                <button onClick={() => deleteRecurring(r.id)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-all ${t.btn.danger}`}>
-                  Remove
+                <button onClick={() => promptDelete(r.id, r.description)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center gap-1 ${t.btn.danger}`}>
+                  <Trash2 size={12} />
+                  <span>Remove</span>
                 </button>
               </div>
             </div>
