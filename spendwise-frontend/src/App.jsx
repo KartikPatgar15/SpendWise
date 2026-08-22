@@ -25,13 +25,15 @@ function MainApp() {
     <BrowserRouter>
       <div className={`min-h-screen w-full ${t.bg} ${t.text} transition-colors duration-200`}>
         <Routes>
-          <Route path="/"          element={<Tracker />} />
-          <Route path="/splitter"  element={<Splitter />} />
-          <Route path="/notes"     element={<Notes />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/recurring" element={<RecurringPage />} />
-          <Route path="/goals"     element={<GoalsPage />} />
-          <Route path="/ai"        element={<AIInsightsPage />} />
+          <Route path="/"            element={<Tracker />} />
+          <Route path="/splitter"    element={<Splitter />} />
+          <Route path="/notes"       element={<Notes />} />
+          <Route path="/analytics"   element={<AnalyticsPage />} />
+          <Route path="/recurring"   element={<RecurringPage />} />
+          <Route path="/goals"       element={<GoalsPage />} />
+          <Route path="/ai"          element={<AIInsightsPage />} />
+          <Route path="/ai-insights" element={<AIInsightsPage />} />
+          <Route path="*"            element={<Tracker />} />
         </Routes>
         <BottomNav />
         <AIBot />
