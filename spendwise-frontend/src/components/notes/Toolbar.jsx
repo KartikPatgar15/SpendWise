@@ -7,7 +7,7 @@ import { CATEGORIES } from "./CategoryFilter";
 import { TEMPLATES } from "../../utils/notes/templates";
 
 export default function Toolbar({
-  note, onUpdate, onToggleCalc, onExportPdf, tokens,
+  note, onUpdate, onInsertHtml, onToggleCalc, onExportPdf, tokens,
 }) {
   const t = tokens;
   const [showColor, setShowColor]         = useState(false);
@@ -27,31 +27,39 @@ export default function Toolbar({
   };
 
   const insertChecklist = () => {
-    const html = `<ul class="checklist" style="list-style:none;padding-left:0">
+    const html = `<ul class="checklist" style="list-style:none;padding-left:0;margin:6px 0">
 <li class="check-item" style="display:flex;align-items:center;gap:6px;margin:4px 0">
-  <input type="checkbox" style="width:16px;height:16px;accent-color:#3b82f6"> <span></span>
+  <input type="checkbox" contenteditable="false" style="width:16px;height:16px;accent-color:#3b82f6;cursor:pointer"> <span>&nbsp;</span>
 </li>
-</ul>`;
-    document.execCommand("insertHTML", false, html);
+</ul><p></p>`;
+    if (onInsertHtml) {
+      onInsertHtml(html);
+    } else {
+      document.execCommand("insertHTML", false, html);
+    }
   };
 
   const insertTable = () => {
-    const r = Number(tableRows) || 3;
-    const c = Number(tableCols) || 3;
+    const r = Math.max(1, Math.min(20, Number(tableRows) || 3));
+    const c = Math.max(1, Math.min(10, Number(tableCols) || 3));
     const headers = Array.from({ length: c }, (_, i) =>
-      `<th style="border:1px solid #ccc;padding:6px 10px;background:#f3f4f6;font-weight:600">Col ${i + 1}</th>`
+      `<th style="border:1px solid rgba(128,128,128,0.3);padding:8px 12px;background:rgba(128,128,128,0.08);font-weight:600">Header ${i + 1}</th>`
     ).join("");
     const rows = Array.from({ length: r }, () => {
       const cells = Array.from({ length: c }, () =>
-        `<td contenteditable="true" style="border:1px solid #ccc;padding:6px 10px;min-width:80px"></td>`
+        `<td style="border:1px solid rgba(128,128,128,0.3);padding:8px 12px;min-width:60px">&nbsp;</td>`
       ).join("");
       return `<tr>${cells}</tr>`;
     }).join("");
-    const html = `<table style="border-collapse:collapse;width:100%;margin:8px 0">
+    const html = `<table style="border-collapse:collapse;width:100%;margin:12px 0">
 <thead><tr>${headers}</tr></thead>
 <tbody>${rows}</tbody>
 </table><p></p>`;
-    document.execCommand("insertHTML", false, html);
+    if (onInsertHtml) {
+      onInsertHtml(html);
+    } else {
+      document.execCommand("insertHTML", false, html);
+    }
     setShowTable(false);
   };
 
@@ -64,6 +72,12 @@ export default function Toolbar({
     <button
       key={label}
       onClick={onClick}
+      onMouseDown={(e) => {
+        // Prevent clicking formatting buttons from stealing focus from contenteditable
+        if (label === "B" || label === "I" || label === "U" || label === "☑") {
+          e.preventDefault();
+        }
+      }}
       title={title}
       className={`px-2 py-1.5 rounded-lg text-sm transition-all active:scale-90 ${
         active ? t.btn.primary : `${t.btn.secondary} hover:brightness-95`
