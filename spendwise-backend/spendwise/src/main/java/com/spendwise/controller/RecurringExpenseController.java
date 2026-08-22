@@ -1,15 +1,13 @@
-// src/main/java/com/spendwise/controller/RecurringExpenseController.java
-// FIXED: Expense.setType() takes ExpenseType enum — convert String via Enum.valueOf()
-// FIXED: Expense.setDate() takes LocalDate — pass LocalDate directly, not String
-// FIXED: No embedded interfaces — file contains only this class
-
 package com.spendwise.controller;
 
 import com.spendwise.model.Expense;
 import com.spendwise.model.RecurringExpense;
 import com.spendwise.repository.ExpenseRepository;
 import com.spendwise.repository.RecurringExpenseRepository;
+import com.spendwise.security.UserPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/recurring")
-@CrossOrigin(origins = "*")
 public class RecurringExpenseController {
 
     private final RecurringExpenseRepository recurringRepo;
@@ -30,20 +27,22 @@ public class RecurringExpenseController {
     }
 
     @GetMapping
-    public List<RecurringExpense> getAll() {
-        return recurringRepo.findByActiveTrue();
+    public List<RecurringExpense> getAll(@AuthenticationPrincipal UserPrincipal principal) {
+        return recurringRepo.findByUserIdAndActiveTrue(principal.getId());
     }
 
     @PostMapping
-    public ResponseEntity<RecurringExpense> create(@RequestBody RecurringExpense r) {
+    public ResponseEntity<RecurringExpense> create(@RequestBody RecurringExpense r, @AuthenticationPrincipal UserPrincipal principal) {
+        r.setUserId(principal.getId());
         r.setActive(true);
         return ResponseEntity.ok(recurringRepo.save(r));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RecurringExpense> update(@PathVariable Long id,
-                                                   @RequestBody RecurringExpense updated) {
-        return recurringRepo.findById(id).map(r -> {
+                                                   @RequestBody RecurringExpense updated,
+                                                   @AuthenticationPrincipal UserPrincipal principal) {
+        return recurringRepo.findByIdAndUserId(id, principal.getId()).map(r -> {
             r.setDescription(updated.getDescription());
             r.setAmount(updated.getAmount());
             r.setType(updated.getType());
@@ -52,16 +51,16 @@ public class RecurringExpenseController {
             r.setEndDate(updated.getEndDate());
             r.setActive(updated.isActive());
             return ResponseEntity.ok(recurringRepo.save(r));
-        }).orElse(ResponseEntity.notFound().build());
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        recurringRepo.findById(id).ifPresent(r -> {
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+        return recurringRepo.findByIdAndUserId(id, principal.getId()).map(r -> {
             r.setActive(false);
             recurringRepo.save(r);
-        });
-        return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().<Void>build();
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("/process")
@@ -75,9 +74,10 @@ public class RecurringExpenseController {
         List<RecurringExpense> actives = recurringRepo.findByActiveTrue();
 
         for (RecurringExpense r : actives) {
+            if (r.getUserId() == null) continue;
             if (r.getEndDate() != null && today.isAfter(r.getEndDate())) continue;
 
-            boolean isDue = switch (r.getFrequency()) {
+            boolean isDue = switch (r.getFrequency() != null ? r.getFrequency() : "") {
                 case "DAILY"   -> true;
                 case "WEEKLY"  -> r.getDayOf() != null && today.getDayOfWeek().getValue() == r.getDayOf();
                 case "MONTHLY" -> r.getDayOf() != null && today.getDayOfMonth() == r.getDayOf();
@@ -87,22 +87,21 @@ public class RecurringExpenseController {
             if (isDue) {
                 String tag = "[R] " + r.getDescription();
 
-                // Check not already created today — compare LocalDate directly
-                boolean alreadyCreated = expenseRepo.findAll().stream()
-                        .anyMatch(e -> e.getDescription().equals(tag)
+                // Check not already created today for this specific user
+                boolean alreadyCreated = expenseRepo.findByUserId(r.getUserId()).stream()
+                        .anyMatch(e -> e.getDescription() != null && e.getDescription().equals(tag)
                                 && today.equals(e.getDate()));
 
                 if (!alreadyCreated) {
                     Expense e = new Expense();
+                    e.setUserId(r.getUserId());
                     e.setDescription(tag);
                     e.setAmount(r.getAmount());
-                    // FIXED: convert String → ExpenseType enum safely
                     try {
                         e.setType(Expense.ExpenseType.valueOf(r.getType()));
-                    } catch (IllegalArgumentException ex) {
+                    } catch (Exception ex) {
                         e.setType(Expense.ExpenseType.OTHER);
                     }
-                    // FIXED: setDate() takes LocalDate, not String
                     e.setDate(today);
                     expenseRepo.save(e);
                 }

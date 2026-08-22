@@ -1,5 +1,3 @@
-// src/App.jsx — All routes wired up
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Tracker        from "./pages/Tracker";
 import Splitter       from "./pages/Splitter";
@@ -8,13 +6,20 @@ import AnalyticsPage  from "./pages/AnalyticsPage";
 import RecurringPage  from "./pages/RecurringPage";
 import GoalsPage      from "./pages/GoalsPage";
 import AIInsightsPage from "./pages/AIInsightsPage";
+import Login          from "./pages/Login";
 import BottomNav      from "./components/BottomNav";
 import AIBot          from "./components/AIBot";
 
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useTheme } from "./hooks/useTheme";
 
-function App() {
+function MainApp() {
+  const { isAuthenticated } = useAuth();
   const { tokens: t } = useTheme();
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   return (
     <BrowserRouter>
@@ -32,6 +37,14 @@ function App() {
         <AIBot />
       </div>
     </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
   );
 }
 

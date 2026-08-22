@@ -1,11 +1,11 @@
-// src/main/java/com/spendwise/controller/SavingsGoalController.java
-// Phase 3 — CRUD for savings goals + contribute endpoint.
-
 package com.spendwise.controller;
 
 import com.spendwise.model.SavingsGoal;
 import com.spendwise.repository.SavingsGoalRepository;
+import com.spendwise.security.UserPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/goals")
-@CrossOrigin(origins = "*")
 public class SavingsGoalController {
 
     private final SavingsGoalRepository goalRepo;
@@ -22,44 +21,46 @@ public class SavingsGoalController {
         this.goalRepo = goalRepo;
     }
 
-    // GET /goals — all active (incomplete) goals
+    // GET /goals — all active (incomplete) goals for current user
     @GetMapping
-    public List<SavingsGoal> getActive() {
-        return goalRepo.findByCompletedFalse();
+    public List<SavingsGoal> getActive(@AuthenticationPrincipal UserPrincipal principal) {
+        return goalRepo.findByUserIdAndCompletedFalse(principal.getId());
     }
 
-    // GET /goals/completed
+    // GET /goals/completed — all completed goals for current user
     @GetMapping("/completed")
-    public List<SavingsGoal> getCompleted() {
-        return goalRepo.findByCompletedTrue();
+    public List<SavingsGoal> getCompleted(@AuthenticationPrincipal UserPrincipal principal) {
+        return goalRepo.findByUserIdAndCompletedTrue(principal.getId());
     }
 
-    // POST /goals — create goal
+    // POST /goals — create goal for current user
     @PostMapping
-    public ResponseEntity<SavingsGoal> create(@RequestBody SavingsGoal goal) {
+    public ResponseEntity<SavingsGoal> create(@RequestBody SavingsGoal goal, @AuthenticationPrincipal UserPrincipal principal) {
+        goal.setUserId(principal.getId());
         goal.setSavedAmount(0);
         goal.setCompleted(false);
         return ResponseEntity.ok(goalRepo.save(goal));
     }
 
-    // PUT /goals/{id} — update goal name/target/date
+    // PUT /goals/{id} — update goal name/target/date if owned by current user
     @PutMapping("/{id}")
     public ResponseEntity<SavingsGoal> update(@PathVariable Long id,
-                                              @RequestBody SavingsGoal updated) {
-        return goalRepo.findById(id).map(g -> {
+                                              @RequestBody SavingsGoal updated,
+                                              @AuthenticationPrincipal UserPrincipal principal) {
+        return goalRepo.findByIdAndUserId(id, principal.getId()).map(g -> {
             g.setName(updated.getName());
             g.setTargetAmount(updated.getTargetAmount());
             g.setTargetDate(updated.getTargetDate());
             return ResponseEntity.ok(goalRepo.save(g));
-        }).orElse(ResponseEntity.notFound().build());
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // POST /goals/{id}/contribute — add amount to savedAmount
-    // Body: { "amount": 500 }
+    // POST /goals/{id}/contribute — add amount to savedAmount if owned by current user
     @PostMapping("/{id}/contribute")
     public ResponseEntity<SavingsGoal> contribute(@PathVariable Long id,
-                                                  @RequestBody Map<String, Double> body) {
-        return goalRepo.findById(id).map(g -> {
+                                                  @RequestBody Map<String, Double> body,
+                                                  @AuthenticationPrincipal UserPrincipal principal) {
+        return goalRepo.findByIdAndUserId(id, principal.getId()).map(g -> {
             double contribution = body.getOrDefault("amount", 0.0);
             double newSaved     = g.getSavedAmount() + contribution;
             g.setSavedAmount(newSaved);
@@ -70,13 +71,15 @@ public class SavingsGoalController {
             }
 
             return ResponseEntity.ok(goalRepo.save(g));
-        }).orElse(ResponseEntity.notFound().build());
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // DELETE /goals/{id}
+    // DELETE /goals/{id} — delete only if owned by current user
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        goalRepo.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+        return goalRepo.findByIdAndUserId(id, principal.getId()).map(g -> {
+            goalRepo.delete(g);
+            return ResponseEntity.noContent().<Void>build();
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }

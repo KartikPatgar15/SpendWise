@@ -1,8 +1,24 @@
 // src/utils/notes/notesStorage.js
-// All localStorage read/write for the Notes module.
+// All localStorage read/write for the Notes module, scoped per authenticated user.
 
-const NOTES_KEY = "spendwise-notes";
-const TRASH_KEY = "spendwise-notes-trash";
+function getUsername() {
+  try {
+    const raw = localStorage.getItem("spendwise_user");
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u && u.username) return u.username;
+    }
+  } catch {}
+  return "demo";
+}
+
+function getNotesKey() {
+  return `spendwise-notes_${getUsername()}`;
+}
+
+function getTrashKey() {
+  return `spendwise-notes-trash_${getUsername()}`;
+}
 
 function genId() {
   return `note_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -11,13 +27,18 @@ function genId() {
 // ── Notes ─────────────────────────────────────────────────────────────────────
 export function loadNotes() {
   try {
-    const raw = localStorage.getItem(NOTES_KEY);
+    const key = getNotesKey();
+    let raw = localStorage.getItem(key);
+    // Legacy fallback for demo user
+    if (!raw && getUsername() === "demo") {
+      raw = localStorage.getItem("spendwise-notes");
+    }
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
 
 export function saveNotes(notes) {
-  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  localStorage.setItem(getNotesKey(), JSON.stringify(notes));
 }
 
 export function saveNote(note) {
@@ -59,13 +80,18 @@ export function createNote(overrides = {}) {
 // ── Trash ─────────────────────────────────────────────────────────────────────
 export function loadTrash() {
   try {
-    const raw = localStorage.getItem(TRASH_KEY);
+    const key = getTrashKey();
+    let raw = localStorage.getItem(key);
+    // Legacy fallback for demo user
+    if (!raw && getUsername() === "demo") {
+      raw = localStorage.getItem("spendwise-notes-trash");
+    }
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
 
 export function saveTrash(trash) {
-  localStorage.setItem(TRASH_KEY, JSON.stringify(trash));
+  localStorage.setItem(getTrashKey(), JSON.stringify(trash));
 }
 
 export function restoreNote(id) {

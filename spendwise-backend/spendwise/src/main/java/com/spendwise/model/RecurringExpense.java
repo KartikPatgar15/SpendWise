@@ -1,6 +1,3 @@
-// src/main/java/com/spendwise/model/RecurringExpense.java
-// Phase 3 — Recurring Expenses entity.
-
 package com.spendwise.model;
 
 import jakarta.persistence.*;
@@ -13,6 +10,9 @@ public class RecurringExpense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(nullable = false)
     private String description;
@@ -45,6 +45,7 @@ public class RecurringExpense {
 
     // ── Getters & Setters ─────────────────────────────────────────────────────
     public Long getId()                  { return id; }
+    public Long getUserId()              { return userId; }
     public String getDescription()       { return description; }
     public double getAmount()            { return amount; }
     public String getType()              { return type; }
@@ -55,6 +56,7 @@ public class RecurringExpense {
     public boolean isActive()            { return active; }
 
     public void setId(Long id)                   { this.id = id; }
+    public void setUserId(Long userId)           { this.userId = userId; }
     public void setDescription(String d)         { this.description = d; }
     public void setAmount(double a)              { this.amount = a; }
     public void setType(String t)                { this.type = t; }

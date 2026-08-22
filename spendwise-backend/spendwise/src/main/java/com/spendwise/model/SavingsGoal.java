@@ -1,6 +1,3 @@
-// src/main/java/com/spendwise/model/SavingsGoal.java
-// Phase 3 — Savings Goals entity.
-
 package com.spendwise.model;
 
 import jakarta.persistence.*;
@@ -14,26 +11,27 @@ public class SavingsGoal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(nullable = false)
-    private String name; // e.g. "New Laptop", "Emergency Fund"
+    private String name;
 
     @Column(nullable = false)
     private double targetAmount;
 
     @Column(nullable = false)
-    private double savedAmount; // manually updated by user
+    private double savedAmount;
 
-    // Optional target date
     private LocalDate targetDate;
 
     @Column(nullable = false)
     private boolean completed = false;
 
-    // ── Constructors ──────────────────────────────────────────────────────────
     public SavingsGoal() {}
 
-    // ── Getters & Setters ─────────────────────────────────────────────────────
     public Long getId()              { return id; }
+    public Long getUserId()          { return userId; }
     public String getName()          { return name; }
     public double getTargetAmount()  { return targetAmount; }
     public double getSavedAmount()   { return savedAmount; }
@@ -41,6 +39,7 @@ public class SavingsGoal {
     public boolean isCompleted()     { return completed; }
 
     public void setId(Long id)                   { this.id = id; }
+    public void setUserId(Long userId)           { this.userId = userId; }
     public void setName(String n)                { this.name = n; }
     public void setTargetAmount(double a)        { this.targetAmount = a; }
     public void setSavedAmount(double a)         { this.savedAmount = a; }

@@ -4,18 +4,22 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "expense")
 public class Expense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private LocalDate date;   //
+    @Column(name = "user_id")
+    private Long userId;
+
+    private LocalDate date;
 
     private double amount;
 
     @Enumerated(EnumType.STRING)
-    private ExpenseType type;   //
+    private ExpenseType type;
 
     private String description;
 
@@ -27,11 +31,19 @@ public class Expense {
         this.id = id;
     }
 
-    public LocalDate getDate() {   //
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {   //
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
@@ -43,11 +55,11 @@ public class Expense {
         this.amount = amount;
     }
 
-    public ExpenseType getType() {   //
+    public ExpenseType getType() {
         return type;
     }
 
-    public void setType(ExpenseType type) {   //
+    public void setType(ExpenseType type) {
         this.type = type;
     }
 

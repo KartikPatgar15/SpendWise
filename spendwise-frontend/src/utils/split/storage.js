@@ -1,12 +1,29 @@
 // src/utils/split/storage.js
-// All localStorage read/write for the Split Expense module.
-// Key: "split-expense-events"
+// All localStorage read/write for the Split Expense module, scoped per authenticated user.
 
-const STORAGE_KEY = "split-expense-events";
+function getUsername() {
+  try {
+    const raw = localStorage.getItem("spendwise_user");
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u && u.username) return u.username;
+    }
+  } catch {}
+  return "demo";
+}
+
+function getStorageKey() {
+  return `split-expense-events_${getUsername()}`;
+}
 
 export function loadEvents() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const key = getStorageKey();
+    let raw = localStorage.getItem(key);
+    // Legacy fallback for demo user
+    if (!raw && getUsername() === "demo") {
+      raw = localStorage.getItem("split-expense-events");
+    }
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -15,7 +32,7 @@ export function loadEvents() {
 
 export function saveEvents(events) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+    localStorage.setItem(getStorageKey(), JSON.stringify(events));
   } catch {
     console.error("Failed to save events to localStorage");
   }

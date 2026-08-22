@@ -1,15 +1,18 @@
 package com.spendwise.controller;
 
 import com.spendwise.model.Expense;
-import com.spendwise.repository.ExpenseRepository;
-import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.List;
 import com.spendwise.model.MonthlyResponse;
 import com.spendwise.model.WeeklyResponse;
+import com.spendwise.repository.ExpenseRepository;
+import com.spendwise.security.UserPrincipal;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:5173")
+import java.time.LocalDate;
+import java.util.*;
+
 @RestController
 @RequestMapping("/expenses")
 public class ExpenseController {
@@ -20,27 +23,21 @@ public class ExpenseController {
         this.expenseRepository = expenseRepository;
     }
 
-    // Add Expense (SAVE to DB)
+    // Add Expense (SAVE to DB with authenticated userId)
     @PostMapping
-    public Expense addExpense(@RequestBody Expense expense) {
+    public Expense addExpense(@RequestBody Expense expense, @AuthenticationPrincipal UserPrincipal principal) {
+        expense.setUserId(principal.getId());
         return expenseRepository.save(expense);
     }
 
     @GetMapping("/history")
-    public List<Expense> getAllHistory() {
-
-        List<Expense> expenses = expenseRepository.findAll();
-
-        // Sort latest first
-        expenses.sort((a, b) -> b.getDate().compareTo(a.getDate()));
-
-        return expenses;
+    public List<Expense> getAllHistory(@AuthenticationPrincipal UserPrincipal principal) {
+        return expenseRepository.findByUserIdOrderByDateDesc(principal.getId());
     }
 
     @GetMapping("/monthly")
-    public MonthlyResponse getMonthlyExpenses() {
-
-        List<Expense> allExpenses = expenseRepository.findAll();
+    public MonthlyResponse getMonthlyExpenses(@AuthenticationPrincipal UserPrincipal principal) {
+        List<Expense> allExpenses = expenseRepository.findByUserId(principal.getId());
 
         LocalDate today = LocalDate.now();
 
@@ -54,10 +51,12 @@ public class ExpenseController {
         List<Expense> lastMonth = new ArrayList<>();
 
         for (Expense e : allExpenses) {
-            if (!e.getDate().isBefore(monthStart)) {
-                currentMonth.add(e);
-            } else if (!e.getDate().isBefore(lastMonthStart) && e.getDate().isBefore(monthStart)) {
-                lastMonth.add(e);
+            if (e.getDate() != null) {
+                if (!e.getDate().isBefore(monthStart)) {
+                    currentMonth.add(e);
+                } else if (!e.getDate().isBefore(lastMonthStart) && e.getDate().isBefore(monthStart)) {
+                    lastMonth.add(e);
+                }
             }
         }
 
@@ -72,10 +71,12 @@ public class ExpenseController {
         Map<Expense.ExpenseType, Double> categorySummary = new HashMap<>();
 
         for (Expense e : currentMonth) {
-            categorySummary.put(
-                    e.getType(),
-                    categorySummary.getOrDefault(e.getType(), 0.0) + e.getAmount()
-            );
+            if (e.getType() != null) {
+                categorySummary.put(
+                        e.getType(),
+                        categorySummary.getOrDefault(e.getType(), 0.0) + e.getAmount()
+                );
+            }
         }
 
         MonthlyResponse response = new MonthlyResponse();
@@ -89,25 +90,25 @@ public class ExpenseController {
     }
 
     @GetMapping("/ai/suggestion")
-    public String getAISuggestion() {
-
-        List<Expense> allExpenses = expenseRepository.findAll();
+    public String getAISuggestion(@AuthenticationPrincipal UserPrincipal principal) {
+        List<Expense> allExpenses = expenseRepository.findByUserId(principal.getId());
 
         LocalDate today = LocalDate.now();
         LocalDate weekStart = today.minusDays(7);
 
         double total = 0;
-
         Map<Expense.ExpenseType, Double> categoryMap = new HashMap<>();
 
         for (Expense e : allExpenses) {
-            if (!e.getDate().isBefore(weekStart)) {
+            if (e.getDate() != null && !e.getDate().isBefore(weekStart)) {
                 total += e.getAmount();
 
-                categoryMap.put(
-                        e.getType(),
-                        categoryMap.getOrDefault(e.getType(), 0.0) + e.getAmount()
-                );
+                if (e.getType() != null) {
+                    categoryMap.put(
+                            e.getType(),
+                            categoryMap.getOrDefault(e.getType(), 0.0) + e.getAmount()
+                    );
+                }
             }
         }
 
@@ -131,9 +132,8 @@ public class ExpenseController {
     }
 
     @GetMapping("/monthly/download")
-    public String downloadMonthlyExpenses() {
-
-        List<Expense> allExpenses = expenseRepository.findAll();
+    public String downloadMonthlyExpenses(@AuthenticationPrincipal UserPrincipal principal) {
+        List<Expense> allExpenses = expenseRepository.findByUserId(principal.getId());
 
         LocalDate today = LocalDate.now();
         LocalDate monthStart = today.withDayOfMonth(1);
@@ -141,7 +141,7 @@ public class ExpenseController {
         List<Expense> currentMonth = new ArrayList<>();
 
         for (Expense e : allExpenses) {
-            if (!e.getDate().isBefore(monthStart)) {
+            if (e.getDate() != null && !e.getDate().isBefore(monthStart)) {
                 currentMonth.add(e);
             }
         }
@@ -156,32 +156,34 @@ public class ExpenseController {
             csv.append(e.getDate()).append(",")
                     .append(e.getAmount()).append(",")
                     .append(e.getType()).append(",")
-                    .append(e.getDescription()).append("\n");
+                    .append(e.getDescription() != null ? e.getDescription().replace(",", " ") : "").append("\n");
         }
 
         return csv.toString();
     }
-    // Get All Expenses (FETCH from DB)
+
+    // Get All Expenses (FETCH from DB for authenticated user)
     @GetMapping
-    public List<Expense> getAllExpenses() {
-        return expenseRepository.findAll();
+    public List<Expense> getAllExpenses(@AuthenticationPrincipal UserPrincipal principal) {
+        return expenseRepository.findByUserId(principal.getId());
     }
 
-    // Delete Expense by ID
+    // Delete Expense by ID (Only allowed if expense belongs to authenticated user)
     @DeleteMapping("/{id}")
-    public String deleteExpense(@PathVariable int id) {
+    public ResponseEntity<String> deleteExpense(@PathVariable int id, @AuthenticationPrincipal UserPrincipal principal) {
+        Optional<Expense> expenseOpt = expenseRepository.findByIdAndUserId(id, principal.getId());
 
-        if (expenseRepository.existsById(id)) {
-            expenseRepository.deleteById(id);
-            return "Expense deleted successfully!";
+        if (expenseOpt.isPresent()) {
+            expenseRepository.delete(expenseOpt.get());
+            return ResponseEntity.ok("Expense deleted successfully!");
         } else {
-            return "Expense not found!";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Expense not found!");
         }
     }
-    @GetMapping("/weekly")
-    public WeeklyResponse getWeeklyExpenses() {
 
-        List<Expense> allExpenses = expenseRepository.findAll();
+    @GetMapping("/weekly")
+    public WeeklyResponse getWeeklyExpenses(@AuthenticationPrincipal UserPrincipal principal) {
+        List<Expense> allExpenses = expenseRepository.findByUserId(principal.getId());
 
         LocalDate today = LocalDate.now();
         LocalDate weekStart = today.minusDays(7);
@@ -191,10 +193,12 @@ public class ExpenseController {
         List<Expense> lastWeek = new ArrayList<>();
 
         for (Expense e : allExpenses) {
-            if (e.getDate().isAfter(weekStart) && e.getDate().isBefore(today.plusDays(1))) {
-                currentWeek.add(e);
-            } else if (e.getDate().isAfter(lastWeekStart) && e.getDate().isBefore(weekStart)) {
-                lastWeek.add(e);
+            if (e.getDate() != null) {
+                if (e.getDate().isAfter(weekStart) && e.getDate().isBefore(today.plusDays(1))) {
+                    currentWeek.add(e);
+                } else if (e.getDate().isAfter(lastWeekStart) && e.getDate().isBefore(weekStart)) {
+                    lastWeek.add(e);
+                }
             }
         }
 
@@ -209,10 +213,12 @@ public class ExpenseController {
         Map<Expense.ExpenseType, Double> categorySummary = new HashMap<>();
 
         for (Expense e : currentWeek) {
-            categorySummary.put(
-                    e.getType(),
-                    categorySummary.getOrDefault(e.getType(), 0.0) + e.getAmount()
-            );
+            if (e.getType() != null) {
+                categorySummary.put(
+                        e.getType(),
+                        categorySummary.getOrDefault(e.getType(), 0.0) + e.getAmount()
+                );
+            }
         }
 
         WeeklyResponse response = new WeeklyResponse();
@@ -224,16 +230,19 @@ public class ExpenseController {
 
         return response;
     }
-    // Update Expense by ID
-    @PutMapping("/{id}")
-    public String updateExpense(@PathVariable int id, @RequestBody Expense expense) {
 
-        if (expenseRepository.existsById(id)) {
+    // Update Expense by ID (Only allowed if expense belongs to authenticated user)
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateExpense(@PathVariable int id, @RequestBody Expense expense, @AuthenticationPrincipal UserPrincipal principal) {
+        Optional<Expense> expenseOpt = expenseRepository.findByIdAndUserId(id, principal.getId());
+
+        if (expenseOpt.isPresent()) {
             expense.setId(id);
+            expense.setUserId(principal.getId());
             expenseRepository.save(expense);
-            return "Expense updated successfully!";
+            return ResponseEntity.ok("Expense updated successfully!");
         } else {
-            return "Expense not found!";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Expense not found!");
         }
     }
 }

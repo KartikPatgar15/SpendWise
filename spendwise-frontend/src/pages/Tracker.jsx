@@ -15,6 +15,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useTheme } from "../hooks/useTheme";
+import { useAuth } from "../hooks/useAuth";
 import { useExpenses } from "../hooks/useExpenses";
 import { useBudget } from "../hooks/useBudget";
 import { useAI } from "../hooks/useAI";
@@ -38,6 +39,7 @@ const CATEGORY_ICONS = {
 
 export default function Tracker() {
   const { theme, setTheme, tokens: t } = useTheme();
+  const { user, logout } = useAuth();
   const navigateTo = useNavigate();
 
   const {
@@ -206,17 +208,34 @@ export default function Tracker() {
 
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5 dark:border-white/5 animate-fade-slide-up">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-[#14B8A6] to-[#22D3EE] flex items-center justify-center text-[#080D12] text-lg shadow-md shadow-[#22D3EE]/20 font-bold">
-            💳
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-[#14B8A6] to-[#22D3EE] flex items-center justify-center text-[#080D12] text-lg shadow-md shadow-[#22D3EE]/20 font-bold">
+              💳
+            </div>
+            <div>
+              <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>SpendWise</h1>
+              <p className={`text-xs font-medium ${t.muted}`}>Smart Expense Tracker & Financial Hub</p>
+            </div>
           </div>
-          <div>
-            <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>SpendWise</h1>
-            <p className={`text-xs font-medium ${t.muted}`}>Smart Expense Tracker & Financial Hub</p>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeSelector theme={theme} setTheme={setTheme} />
+            {user && (
+              <div className="flex items-center gap-1.5 pl-2 border-l border-black/10 dark:border-white/10">
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 ${t.muted} hidden sm:inline-flex items-center gap-1`}>
+                  <span>👤</span>
+                  <span>{user.username}</span>
+                </span>
+                <button
+                  onClick={logout}
+                  title="Sign out"
+                  className={`text-xs font-bold px-2.5 py-1 rounded-lg ${t.btn.ghost} hover:text-[#FF5C5C] hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        <ThemeSelector theme={theme} setTheme={setTheme} />
-      </div>
 
       {/* ════════════════ FORM VIEW (MAIN DASHBOARD) ════════════════ */}
       {view === "form" && (

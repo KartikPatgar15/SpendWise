@@ -1,11 +1,11 @@
-// src/main/java/com/spendwise/controller/BudgetController.java
-// NEW file — Phase 2. Does not modify ExpenseController.
-
 package com.spendwise.controller;
 
 import com.spendwise.model.Budget;
 import com.spendwise.repository.BudgetRepository;
+import com.spendwise.security.UserPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/budget")
-@CrossOrigin(origins = "*")
 public class BudgetController {
 
     private final BudgetRepository budgetRepository;
@@ -25,15 +24,14 @@ public class BudgetController {
     }
 
     // ── GET /budget/current ───────────────────────────────────────────────────
-    // Returns the budget for the current month.
-    // Frontend calls this on app load to hydrate useBudget hook.
+    // Returns the budget for current user's current month.
     @GetMapping("/current")
-    public ResponseEntity<Map<String, Object>> getCurrentBudget() {
+    public ResponseEntity<Map<String, Object>> getCurrentBudget(@AuthenticationPrincipal UserPrincipal principal) {
         LocalDate now   = LocalDate.now();
         int month       = now.getMonthValue();
         int year        = now.getYear();
 
-        Optional<Budget> budget = budgetRepository.findByMonthAndYear(month, year);
+        Optional<Budget> budget = budgetRepository.findByUserIdAndMonthAndYear(principal.getId(), month, year);
 
         Map<String, Object> response = new HashMap<>();
         if (budget.isPresent()) {
@@ -50,13 +48,14 @@ public class BudgetController {
     }
 
     // ── GET /budget?month=6&year=2025 ─────────────────────────────────────────
-    // Returns budget for a specific month/year (for historical views).
+    // Returns budget for current user's specific month/year.
     @GetMapping
     public ResponseEntity<Map<String, Object>> getBudget(
             @RequestParam int month,
-            @RequestParam int year) {
+            @RequestParam int year,
+            @AuthenticationPrincipal UserPrincipal principal) {
 
-        Optional<Budget> budget = budgetRepository.findByMonthAndYear(month, year);
+        Optional<Budget> budget = budgetRepository.findByUserIdAndMonthAndYear(principal.getId(), month, year);
         Map<String, Object> response = new HashMap<>();
 
         if (budget.isPresent()) {
@@ -73,30 +72,33 @@ public class BudgetController {
     }
 
     // ── POST /budget ──────────────────────────────────────────────────────────
-    // Create or update budget for a month.
-    // Body: { "month": 6, "year": 2025, "amount": 12000 }
+    // Create or update budget for a month scoped to current user.
     @PostMapping
-    public ResponseEntity<Budget> setbudget(@RequestBody Budget request) {
-        Optional<Budget> existing = budgetRepository.findByMonthAndYear(
-                request.getMonth(), request.getYear());
+    public ResponseEntity<Budget> setbudget(@RequestBody Budget request, @AuthenticationPrincipal UserPrincipal principal) {
+        Optional<Budget> existing = budgetRepository.findByUserIdAndMonthAndYear(
+                principal.getId(), request.getMonth(), request.getYear());
 
         Budget budget;
         if (existing.isPresent()) {
-            // Update existing
             budget = existing.get();
             budget.setAmount(request.getAmount());
         } else {
-            // Create new
-            budget = new Budget(request.getMonth(), request.getYear(), request.getAmount());
+            budget = new Budget(principal.getId(), request.getMonth(), request.getYear(), request.getAmount());
         }
 
         return ResponseEntity.ok(budgetRepository.save(budget));
     }
 
     // ── DELETE /budget/{id} ───────────────────────────────────────────────────
+    // Deletes budget only if it belongs to current user.
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBudget(@PathVariable Long id) {
-        budgetRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteBudget(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal) {
+        Optional<Budget> existing = budgetRepository.findByIdAndUserId(id, principal.getId());
+        if (existing.isPresent()) {
+            budgetRepository.delete(existing.get());
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

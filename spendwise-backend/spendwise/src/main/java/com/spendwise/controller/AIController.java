@@ -1,15 +1,11 @@
-// src/main/java/com/spendwise/controller/AIController.java
-// FIXED: getType() returns ExpenseType enum — use .name() to get String for groupingBy
-// FIXED: getDate() returns LocalDate — no String conversion needed
-// FIXED: getAmount() returns double — no parsing needed
-// FIXED: No other classes embedded in this file
-
 package com.spendwise.controller;
 
 import com.spendwise.model.Expense;
 import com.spendwise.repository.ExpenseRepository;
+import com.spendwise.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,7 +14,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/ai")
-@CrossOrigin(origins = "*")
 public class AIController {
 
     private final ExpenseRepository expenseRepo;
@@ -34,10 +29,10 @@ public class AIController {
         this.expenseRepo = expenseRepo;
     }
 
-    // GET /ai/insights
+    // GET /ai/insights — strictly scoped to authenticated user
     @GetMapping("/insights")
-    public ResponseEntity<Map<String, Object>> getInsights() {
-        String summary = buildExpenseSummary();
+    public ResponseEntity<Map<String, Object>> getInsights(@AuthenticationPrincipal UserPrincipal principal) {
+        String summary = buildExpenseSummary(principal.getId());
         String prompt = """
             You are a personal finance advisor. Analyze this expense data and provide:
             1. 3 key spending insights (be specific with numbers)
@@ -57,10 +52,10 @@ public class AIController {
         return callOpenAI(prompt);
     }
 
-    // GET /ai/budget-suggestion
+    // GET /ai/budget-suggestion — strictly scoped to authenticated user
     @GetMapping("/budget-suggestion")
-    public ResponseEntity<Map<String, Object>> getBudgetSuggestion() {
-        String summary = buildExpenseSummary();
+    public ResponseEntity<Map<String, Object>> getBudgetSuggestion(@AuthenticationPrincipal UserPrincipal principal) {
+        String summary = buildExpenseSummary(principal.getId());
         String prompt = """
             Based on this spending data, suggest a realistic monthly budget.
             Consider the user's spending patterns and suggest 10-15%% savings.
@@ -96,12 +91,11 @@ public class AIController {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private String buildExpenseSummary() {
-        List<Expense> all = expenseRepo.findAll();
+    private String buildExpenseSummary(Long userId) {
+        List<Expense> all = expenseRepo.findByUserId(userId);
 
-        // FIXED: getType() returns ExpenseType enum — call .name() to get String key
-        // FIXED: getAmount() returns double — no parsing needed
         Map<String, Double> byCategory = all.stream()
+                .filter(e -> e.getType() != null)
                 .collect(Collectors.groupingBy(
                         e -> e.getType().name(),
                         Collectors.summingDouble(Expense::getAmount)
