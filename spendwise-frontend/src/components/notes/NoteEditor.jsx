@@ -82,14 +82,14 @@ export default function NoteEditor({ note, onSave, onBack, tokens, isDark }) {
       />
 
       {/* Note content area */}
-      <div className="flex-1 px-4 py-4 space-y-3">
+      <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 space-y-4 max-w-4xl mx-auto w-full">
         {/* Title */}
         <input
           type="text"
           placeholder="Title"
           value={local.title}
           onChange={(e) => handleUpdate({ title: e.target.value })}
-          className={`w-full text-2xl font-extrabold bg-transparent border-none outline-none placeholder-current/30 ${t.text}`}
+          className={`w-full text-2xl sm:text-3xl font-extrabold bg-transparent border-none outline-none placeholder-current/30 ${t.text}`}
         />
 
         {/* Editable body */}
@@ -99,7 +99,7 @@ export default function NoteEditor({ note, onSave, onBack, tokens, isDark }) {
           suppressContentEditableWarning
           onInput={handleContentChange}
           data-placeholder="Start writing…"
-          className={`min-h-[60vh] text-sm leading-relaxed outline-none ${t.text}
+          className={`min-h-[60vh] text-sm sm:text-base leading-relaxed outline-none ${t.text}
             [&_table]:w-full [&_table]:border-collapse [&_table]:my-2
             [&_td]:border [&_td]:border-current/20 [&_td]:p-2
             [&_th]:border [&_th]:border-current/20 [&_th]:p-2 [&_th]:font-semibold [&_th]:bg-current/5

@@ -16,10 +16,14 @@ import { formatRupees } from "../../utils/expenseHelpers";
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const { name, value } = payload[0];
+    const color = CATEGORY_COLORS[name] || "#657983";
     return (
-      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow">
-        <p className="font-semibold">{name}</p>
-        <p>{formatRupees(value)}</p>
+      <div className="bg-[#0D141B]/95 backdrop-blur-md text-[#E8F1F3] text-xs px-3.5 py-2.5 rounded-xl shadow-xl border border-[#263640] flex items-center gap-2">
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+        <div>
+          <p className="font-bold tracking-tight">{name}</p>
+          <p className="text-[#9AAEB7] font-medium tabular-nums">{formatRupees(value)}</p>
+        </div>
       </div>
     );
   }
@@ -32,7 +36,7 @@ const CustomTooltip = ({ active, payload }) => {
 export default function CategoryPieChart({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-48 text-[#657983] text-xs font-semibold">
         No data to display
       </div>
     );
@@ -45,10 +49,11 @@ export default function CategoryPieChart({ data }) {
           data={data}
           cx="50%"
           cy="50%"
-          innerRadius={60}
-          outerRadius={90}
-          paddingAngle={3}
+          innerRadius={65}
+          outerRadius={95}
+          paddingAngle={4}
           dataKey="value"
+          stroke="transparent"
         >
           {data.map((entry) => (
             <Cell
@@ -59,8 +64,11 @@ export default function CategoryPieChart({ data }) {
         </Pie>
         <Tooltip content={<CustomTooltip />} />
         <Legend
+          verticalAlign="bottom"
+          iconType="circle"
+          iconSize={8}
           formatter={(value) => (
-            <span className="text-xs font-medium">{value}</span>
+            <span className="text-xs font-semibold px-1 opacity-90">{value}</span>
           )}
         />
       </PieChart>

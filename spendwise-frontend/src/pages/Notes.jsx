@@ -108,7 +108,7 @@ export default function Notes() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className={`min-h-screen ${t.bg} ${t.text}`}>
+    <div className={`min-h-screen ${t.bg} ${t.text} transition-colors`}>
       {screen === SCREEN.EDITOR && activeNote ? (
         <NoteEditor
           note={activeNote}
@@ -118,7 +118,7 @@ export default function Notes() {
           isDark={isDark}
         />
       ) : screen === SCREEN.TRASH ? (
-        <div className={`px-4 pt-5 pb-28 animate-fade-in`}>
+        <div className={`px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full animate-fade-in`}>
           <TrashView
             trash={trash}
             onRestore={handleRestore}
@@ -128,7 +128,7 @@ export default function Notes() {
           />
         </div>
       ) : (
-        <div className={`px-4 pt-5 pb-28 animate-fade-in`}>
+        <div className={`px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full animate-fade-in`}>
           <NotesHome
             notes={{
               _all:         notes,

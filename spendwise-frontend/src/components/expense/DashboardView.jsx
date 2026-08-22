@@ -58,14 +58,18 @@ export default function DashboardView({ data, onBack, tokens }) {
   ];
 
   return (
-    <div className={`space-y-5 ${t.text}`}>
+    <div className={`space-y-5 ${t.text} animate-fade-slide-up`}>
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-        <button onClick={onBack} className={`text-sm ${t.btn.ghost}`}>← Back</button>
+        <div className="flex items-center gap-2">
+          <button onClick={onBack} className={`px-2.5 py-1 rounded-lg text-xs font-bold ${t.btn.ghost} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}>
+            ← Back
+          </button>
+          <h2 className="text-xl font-black tracking-tight">Overview Dashboard</h2>
+        </div>
       </div>
 
       {/* Stat grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((card) => (
           <StatCard key={card.label} tokens={t} {...card} />
         ))}
@@ -73,13 +77,17 @@ export default function DashboardView({ data, onBack, tokens }) {
 
       {/* Top spending category */}
       {stats.topSpend && (
-        <div className={`${t.card} ${t.border} border rounded-xl p-4 shadow-sm`}>
-          <p className={`text-xs font-medium uppercase tracking-wider mb-2 ${t.muted}`}>
+        <div className={`${t.card} ${t.border} border rounded-2xl p-5 shadow-xs transition-all duration-200 hover:shadow-md`}>
+          <p className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${t.muted}`}>
             Top Spending Category
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold">{stats.topSpend.category}</span>
-            <span className={`text-lg font-semibold ${t.text}`}>
+            <div className="flex items-center gap-2.5">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${t.badge?.[stats.topSpend.category] || "bg-blue-500/10 text-blue-500"}`}>
+                {stats.topSpend.category}
+              </span>
+            </div>
+            <span className={`text-xl font-black tabular-nums ${t.text}`}>
               {formatRupees(stats.topSpend.amount)}
             </span>
           </div>

@@ -110,10 +110,10 @@ export default function ExpenseForm({ event, editingExpense, onSave, onGenerateR
       </div>
 
       {/* Expense name */}
-      <div className={`${t.card} ${t.border} border rounded-2xl p-4 space-y-3`}>
-        <div className="space-y-1.5">
-          <label className={`text-xs font-bold uppercase tracking-wider ${t.muted}`}>Expense Name</label>
-          <input type="text" placeholder="e.g. Bus Ticket, Hotel, Dinner…"
+      <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs`}>
+        <div className="space-y-1">
+          <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Expense Name</label>
+          <input type="text" placeholder="e.g. Flight Tickets, Hotel, Dinner…"
             value={form.expenseName}
             onChange={(e) => setForm({ ...form, expenseName: e.target.value })}
             className={`${fieldClass} w-full`} />
@@ -121,11 +121,11 @@ export default function ExpenseForm({ event, editingExpense, onSave, onGenerateR
 
         {/* Distribution type */}
         <div className="space-y-1.5">
-          <label className={`text-xs font-bold uppercase tracking-wider ${t.muted}`}>Split Type</label>
-          <div className={`flex rounded-xl overflow-hidden border ${t.border}`}>
+          <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Split Distribution</label>
+          <div className={`inline-flex w-full rounded-xl overflow-hidden border ${t.border} p-0.5 bg-black/5 dark:bg-white/5`}>
             {[["equal", "Split Equally"], ["exact", "Exact Amount"]].map(([val, label]) => (
               <button key={val} onClick={() => setForm({ ...form, distributionType: val })}
-                className={`flex-1 py-2 text-xs font-bold transition-colors ${form.distributionType === val ? t.btn.primary : t.btn.secondary}`}>
+                className={`flex-1 py-2 rounded-lg text-xs font-extrabold transition-all duration-150 ${form.distributionType === val ? `${t.btn.primary} shadow-2xs` : "opacity-60 hover:opacity-100"}`}>
                 {label}
               </button>
             ))}
@@ -133,108 +133,117 @@ export default function ExpenseForm({ event, editingExpense, onSave, onGenerateR
         </div>
       </div>
 
-      {/* Who Paid */}
-      <div className={`${t.card} ${t.border} border rounded-2xl p-4 space-y-3`}>
-        <div className="flex items-center justify-between">
-          <h3 className={`text-xs font-bold uppercase tracking-wider ${t.muted}`}>Who Paid</h3>
-          <span className={`text-xs font-bold ${totalPaid > 0 ? "text-blue-500" : t.muted}`}>
-            Total: ₹{totalPaid.toFixed(2)}
-          </span>
+      {/* Grid for Who Paid & Who Shares on Desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        {/* Who Paid */}
+        <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xs`}>
+          <div className="flex items-center justify-between">
+            <h3 className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Who Paid</h3>
+            <span className={`text-xs font-black tabular-nums ${totalPaid > 0 ? "text-blue-500" : t.muted}`}>
+              Total: ₹{totalPaid.toFixed(2)}
+            </span>
+          </div>
+          <div className="space-y-2.5">
+            {participants.map((p) => {
+              const payer = form.paidBy.find((x) => x.participantId === p.id);
+              return (
+                <div key={p.id} className="flex items-center gap-3">
+                  <input type="checkbox" checked={payer?.checked || false}
+                    onChange={(e) => setPayer(p.id, "checked", e.target.checked)}
+                    className="w-4 h-4 accent-blue-500 shrink-0 cursor-pointer rounded" />
+                  <span className={`text-xs font-bold flex-1 ${t.text}`}>{p.name}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-xs font-bold ${t.muted}`}>₹</span>
+                    <input type="number" min="0" placeholder="0"
+                      value={payer?.amount ?? ""}
+                      disabled={!payer?.checked}
+                      onChange={(e) => setPayer(p.id, "amount", e.target.value)}
+                      className={`${fieldClass} w-24 text-right tabular-nums ${!payer?.checked ? "opacity-30 cursor-not-allowed" : ""}`} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        {participants.map((p) => {
-          const payer = form.paidBy.find((x) => x.participantId === p.id);
-          return (
-            <div key={p.id} className="flex items-center gap-3">
-              <input type="checkbox" checked={payer?.checked || false}
-                onChange={(e) => setPayer(p.id, "checked", e.target.checked)}
-                className="w-4 h-4 accent-blue-500 shrink-0" />
-              <span className={`text-sm font-medium flex-1 ${t.text}`}>{p.name}</span>
-              <div className="flex items-center gap-1">
-                <span className={`text-xs ${t.muted}`}>₹</span>
-                <input type="number" min="0" placeholder="0"
-                  value={payer?.amount ?? ""}
-                  disabled={!payer?.checked}
-                  onChange={(e) => setPayer(p.id, "amount", e.target.value)}
-                  className={`${fieldClass} w-24 text-right ${!payer?.checked ? "opacity-40" : ""}`} />
+
+        {/* Who Shares */}
+        <div className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xs`}>
+          <h3 className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>
+            {form.distributionType === "equal" ? "Who Shares (Equally)" : "Who Shares (Custom Amount)"}
+          </h3>
+
+          {form.distributionType === "equal" ? (
+            <>
+              <div className="space-y-2.5">
+                {participants.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <input type="checkbox"
+                        checked={form.sharedBy.includes(p.id)}
+                        onChange={() => toggleBeneficiary(p.id)}
+                        className="w-4 h-4 accent-blue-500 cursor-pointer rounded" />
+                      <span className={`text-xs font-bold ${t.text}`}>{p.name}</span>
+                    </div>
+                    {form.sharedBy.includes(p.id) && sharePerPerson > 0 && (
+                      <span className="text-xs font-black tabular-nums text-emerald-500">
+                        ₹{sharePerPerson.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
-          );
-        })}
+              {form.sharedBy.length > 0 && totalPaid > 0 && (
+                <div className={`pt-3 border-t ${t.border} flex justify-between text-xs tabular-nums`}>
+                  <span className={`font-semibold ${t.muted}`}>Each person pays</span>
+                  <span className="font-black text-emerald-500">₹{sharePerPerson.toFixed(2)}</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="space-y-2.5">
+                {participants.map((p) => (
+                  <div key={p.id} className="flex items-center gap-3">
+                    <span className={`text-xs font-bold flex-1 ${t.text}`}>{p.name}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-xs font-bold ${t.muted}`}>₹</span>
+                      <input type="number" min="0" placeholder="0"
+                        value={form.exactShares[p.id] ?? ""}
+                        onChange={(e) => setExactShare(p.id, e.target.value)}
+                        className={`${fieldClass} w-24 text-right tabular-nums`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className={`pt-3 border-t ${t.border} flex justify-between text-xs tabular-nums`}>
+                <span className={`font-semibold ${t.muted}`}>Shares total</span>
+                <span className={`font-black ${exactValid ? "text-emerald-500" : "text-rose-500"}`}>
+                  ₹{totalExact.toFixed(2)} / ₹{totalPaid.toFixed(2)}
+                </span>
+              </div>
+              {!exactValid && totalPaid > 0 && (
+                <p className="text-xs font-semibold text-rose-500">Shares must equal total paid</p>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Who Shares */}
-      <div className={`${t.card} ${t.border} border rounded-2xl p-4 space-y-3`}>
-        <h3 className={`text-xs font-bold uppercase tracking-wider ${t.muted}`}>
-          {form.distributionType === "equal" ? "Who Shares (Equal)" : "Who Shares (Exact Amount)"}
-        </h3>
-
-        {form.distributionType === "equal" ? (
-          <>
-            {participants.map((p) => (
-              <div key={p.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <input type="checkbox"
-                    checked={form.sharedBy.includes(p.id)}
-                    onChange={() => toggleBeneficiary(p.id)}
-                    className="w-4 h-4 accent-blue-500" />
-                  <span className={`text-sm font-medium ${t.text}`}>{p.name}</span>
-                </div>
-                {form.sharedBy.includes(p.id) && sharePerPerson > 0 && (
-                  <span className="text-xs font-semibold text-emerald-500">
-                    ₹{sharePerPerson.toFixed(2)}
-                  </span>
-                )}
-              </div>
-            ))}
-            {form.sharedBy.length > 0 && totalPaid > 0 && (
-              <div className={`pt-2 border-t ${t.border} flex justify-between text-xs`}>
-                <span className={t.muted}>Each pays</span>
-                <span className={`font-bold text-emerald-500`}>₹{sharePerPerson.toFixed(2)}</span>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {participants.map((p) => (
-              <div key={p.id} className="flex items-center gap-3">
-                <span className={`text-sm font-medium flex-1 ${t.text}`}>{p.name}</span>
-                <div className="flex items-center gap-1">
-                  <span className={`text-xs ${t.muted}`}>₹</span>
-                  <input type="number" min="0" placeholder="0"
-                    value={form.exactShares[p.id] ?? ""}
-                    onChange={(e) => setExactShare(p.id, e.target.value)}
-                    className={`${fieldClass} w-24 text-right`} />
-                </div>
-              </div>
-            ))}
-            <div className={`pt-2 border-t ${t.border} flex justify-between text-xs`}>
-              <span className={t.muted}>Shares total</span>
-              <span className={`font-bold ${exactValid ? "text-emerald-500" : "text-red-500"}`}>
-                ₹{totalExact.toFixed(2)} / ₹{totalPaid.toFixed(2)}
-              </span>
-            </div>
-            {!exactValid && totalPaid > 0 && (
-              <p className="text-xs text-red-500">Shares must equal total paid</p>
-            )}
-          </>
-        )}
-      </div>
-
-      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+      {error && <p className="text-xs font-semibold text-rose-500">{error}</p>}
 
       {/* Actions */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-1">
         {!editingExpense && (
           <button onClick={() => handleSave(true)}
             disabled={form.distributionType === "exact" && !exactValid}
-            className={`${t.btn.secondary} flex-1 py-3.5 rounded-xl text-sm font-bold active:scale-95 transition-all ${form.distributionType === "exact" && !exactValid ? "opacity-50" : ""}`}>
+            className={`${t.btn.secondary} flex-1 py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all ${form.distributionType === "exact" && !exactValid ? "opacity-50" : ""}`}>
             Save & Add Next
           </button>
         )}
         <button
           onClick={() => editingExpense ? handleSave(false) : handleSave(false)}
           disabled={form.distributionType === "exact" && !exactValid}
-          className={`${t.btn.primary} flex-1 py-3.5 rounded-xl text-sm font-bold active:scale-95 transition-all ${form.distributionType === "exact" && !exactValid ? "opacity-50" : ""}`}>
+          className={`${t.btn.primary} flex-1 py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider shadow-sm active:scale-98 transition-all ${form.distributionType === "exact" && !exactValid ? "opacity-50" : ""}`}>
           {editingExpense ? "Save Changes" : "Generate Report"}
         </button>
       </div>

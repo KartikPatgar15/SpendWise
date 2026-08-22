@@ -16,9 +16,9 @@ import { formatRupees } from "../../utils/expenseHelpers";
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow">
-        <p className="font-semibold mb-1">{label}</p>
-        <p>{formatRupees(payload[0].value)}</p>
+      <div className="bg-[#0D141B]/95 backdrop-blur-md text-[#E8F1F3] text-xs px-3.5 py-2.5 rounded-xl shadow-xl border border-[#263640]">
+        <p className="text-[#9AAEB7] font-semibold mb-0.5">{label}</p>
+        <p className="text-sm font-extrabold text-[#22D3EE] tabular-nums">{formatRupees(payload[0].value)}</p>
       </div>
     );
   }
@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function MonthlyTrendChart({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-48 text-[#657983] text-xs font-semibold">
         No data to display
       </div>
     );
@@ -39,22 +39,22 @@ export default function MonthlyTrendChart({ data }) {
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 12, right: 12, left: -10, bottom: 0 }}>
         <defs>
           <linearGradient id="monthGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+            <stop offset="5%" stopColor="#22D3EE" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#22D3EE" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(38, 54, 64, 0.6)" vertical={false} />
         <XAxis
           dataKey="month"
-          tick={{ fontSize: 11, fill: "#9ca3af" }}
+          tick={{ fontSize: 11, fill: "#9AAEB7", fontWeight: 600 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: "#9ca3af" }}
+          tick={{ fontSize: 11, fill: "#9AAEB7", fontWeight: 600 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
@@ -64,11 +64,11 @@ export default function MonthlyTrendChart({ data }) {
         <Area
           type="monotone"
           dataKey="total"
-          stroke="#3b82f6"
-          strokeWidth={2}
+          stroke="#22D3EE"
+          strokeWidth={2.5}
           fill="url(#monthGradient)"
-          dot={{ fill: "#3b82f6", r: 3 }}
-          activeDot={{ r: 5 }}
+          dot={{ fill: "#22D3EE", r: 3.5, strokeWidth: 2, stroke: "#080D12" }}
+          activeDot={{ r: 6, fill: "#38E8F5", stroke: "#080D12", strokeWidth: 2 }}
         />
       </AreaChart>
     </ResponsiveContainer>

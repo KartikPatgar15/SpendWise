@@ -103,9 +103,8 @@ export default function Splitter() {
     setScreen(SCREEN.EXPENSE);
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className={`min-h-screen ${t.bg} ${t.text} px-4 pt-5 pb-28`}>
+    <div className={`min-h-screen ${t.bg} ${t.text} px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full transition-colors`}>
       {screen === SCREEN.HOME && (
         <EventHome
           events={events}

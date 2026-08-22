@@ -41,55 +41,63 @@ export default function RecurringPage() {
   };
 
   return (
-    <div className={`min-h-screen ${t.bg} ${t.text} px-4 pt-5 pb-28 space-y-5`}>
+    <div className={`min-h-screen ${t.bg} ${t.text} px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full space-y-6 animate-fade-slide-up transition-colors`}>
 
       {/* Header */}
-      <div className="flex items-center justify-between animate-fade-slide-up">
-        <div>
-          <h1 className={`text-2xl font-extrabold tracking-tight ${t.text}`}>Recurring</h1>
-          <p className={`text-xs mt-0.5 ${t.muted}`}>Auto-expenses that repeat on a schedule</p>
+      <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-lg shadow-md shadow-purple-500/20">
+            🔁
+          </div>
+          <div>
+            <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>Recurring Expenses</h1>
+            <p className={`text-xs font-medium ${t.muted}`}>Auto-expenses scheduled over time</p>
+          </div>
         </div>
         <button onClick={() => setShowForm((v) => !v)}
-          className={`${t.btn.primary} px-4 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all`}>
-          {showForm ? "Cancel" : "+ New"}
+          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs`}>
+          {showForm ? "✕ Cancel" : "+ Add Bill"}
         </button>
       </div>
 
       {/* Add form */}
       {showForm && (
-        <div className={`${t.card} ${t.border} border rounded-2xl p-4 space-y-3 animate-fade-slide-up`}>
-          <h2 className={`text-sm font-bold ${t.text}`}>New Recurring Expense</h2>
+        <div className={`${t.card} ${t.border} border rounded-2xl p-5 sm:p-6 space-y-4 shadow-xs max-w-2xl mx-auto animate-fade-slide-up`}>
+          <div className="flex items-center justify-between">
+            <h2 className={`text-xs font-extrabold uppercase tracking-wider ${t.text}`}>New Recurring Expense</h2>
+            <span className="text-[11px] font-semibold text-purple-400">Scheduled</span>
+          </div>
 
-          <div className="space-y-1.5">
-            <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Description *</label>
-            <input type="text" placeholder="e.g. Netflix, Rent…" value={form.description}
+          <div className="space-y-1">
+            <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Description *</label>
+            <input type="text" placeholder="e.g. Netflix, Apartment Rent, Gym, Wifi…" value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })} className={fieldClass} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Amount (₹) *</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Amount (₹) *</label>
               <input type="number" placeholder="0.00" value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })} className={fieldClass} />
             </div>
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Category</label>
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Category</label>
               <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={fieldClass}>
                 {EXPENSE_CATEGORIES.map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Frequency</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Frequency</label>
               <select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })} className={fieldClass}>
                 {FREQUENCIES.map((f) => <option key={f}>{f}</option>)}
               </select>
             </div>
             {form.frequency !== "DAILY" && (
-              <div className="space-y-1.5">
-                <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>
+              <div className="space-y-1">
+                <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>
                   {form.frequency === "WEEKLY" ? "Day of Week" : "Day of Month"}
                 </label>
                 {form.frequency === "WEEKLY" ? (
@@ -104,59 +112,62 @@ export default function RecurringPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Start Date *</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Start Date *</label>
               <input type="date" value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })} className={fieldClass} />
             </div>
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>End Date (optional)</label>
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>End Date (optional)</label>
               <input type="date" value={form.endDate}
                 onChange={(e) => setForm({ ...form, endDate: e.target.value })} className={fieldClass} />
             </div>
           </div>
 
           <button onClick={handleSave} disabled={saving}
-            className={`${t.btn.primary} w-full py-3 rounded-xl text-sm font-bold active:scale-95 transition-all ${saving ? "opacity-60" : ""}`}>
+            className={`${t.btn.primary} w-full py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-sm ${saving ? "opacity-60" : ""}`}>
             Save Recurring Expense
           </button>
         </div>
       )}
 
       {/* Loading */}
-      {loading && <div className={`text-center py-12 ${t.muted}`}>Loading…</div>}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className={`text-xs font-bold uppercase tracking-wider ${t.muted}`}>Loading recurring bills…</p>
+        </div>
+      )}
 
       {/* Empty */}
       {!loading && recurring.length === 0 && (
         <div className={`text-center py-16 ${t.muted} animate-fade-in`}>
-          <p className="text-4xl mb-3">🔁</p>
-          <p className="text-sm font-medium">No recurring expenses yet</p>
-          <p className="text-xs mt-1">Add rent, subscriptions, EMIs…</p>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">🔁</div>
+          <p className="text-sm font-bold">No recurring bills recorded</p>
+          <p className="text-xs mt-0.5 opacity-75">Add subscriptions, house rent, utilities or EMIs above</p>
         </div>
       )}
 
       {/* List */}
       {recurring.length > 0 && (
-        <div className="space-y-3 animate-fade-slide-up-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-slide-up-1">
           {recurring.map((r) => (
-            <div key={r.id} className={`${t.card} ${t.border} border rounded-2xl p-4 shadow-sm`}>
-              <div className="flex justify-between items-start gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${t.badge?.[r.type] || "bg-gray-100 text-gray-700"}`}>{r.type}</span>
-                    <span className={`text-[10px] font-medium ${t.muted}`}>{freqLabel(r)}</span>
-                  </div>
-                  <p className={`text-sm font-bold ${t.text}`}>{r.description}</p>
-                  {r.endDate && <p className={`text-xs mt-0.5 ${t.muted}`}>Until {r.endDate}</p>}
+            <div key={r.id} className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 shadow-xs transition-all duration-200 hover:shadow-md flex flex-col justify-between space-y-3`}>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${t.badge?.[r.type] || "bg-gray-100 text-gray-700"}`}>{r.type}</span>
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400">{freqLabel(r)}</span>
                 </div>
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  <span className={`text-sm font-extrabold ${t.text}`}>{formatRupees(r.amount)}</span>
-                  <button onClick={() => deleteRecurring(r.id)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold active:scale-95 transition-all ${t.btn.danger}`}>
-                    Remove
-                  </button>
-                </div>
+                <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>{r.description}</p>
+                {r.endDate && <p className={`text-[11px] font-medium ${t.muted}`}>Active until {r.endDate}</p>}
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/5">
+                <span className={`text-base font-black tabular-nums ${t.text}`}>{formatRupees(r.amount)}</span>
+                <button onClick={() => deleteRecurring(r.id)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold active:scale-95 transition-all ${t.btn.danger}`}>
+                  Remove
+                </button>
               </div>
             </div>
           ))}

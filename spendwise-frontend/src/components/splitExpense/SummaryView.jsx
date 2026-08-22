@@ -13,12 +13,12 @@ export default function SummaryView({ summary, participants, tokens }) {
   ];
 
   return (
-    <div className="space-y-3 animate-fade-slide-up">
+    <div className="space-y-2.5 animate-fade-slide-up">
       {rows.map(([label, value]) => (
         <div key={label}
-          className={`${t.card} ${t.border} border rounded-2xl px-4 py-3 flex justify-between items-start gap-4`}>
-          <span className={`text-xs font-semibold uppercase tracking-wider shrink-0 ${t.muted}`}>{label}</span>
-          <span className={`text-sm font-bold text-right ${t.text}`}>{value}</span>
+          className={`${t.card} ${t.border} border rounded-2xl px-4 py-3.5 flex justify-between items-center gap-4 shadow-2xs`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider shrink-0 ${t.muted}`}>{label}</span>
+          <span className={`text-xs font-black text-right tabular-nums ${t.text}`}>{value}</span>
         </div>
       ))}
     </div>

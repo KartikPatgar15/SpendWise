@@ -11,10 +11,14 @@ import AIInsightsPage from "./pages/AIInsightsPage";
 import BottomNav      from "./components/BottomNav";
 import AIBot          from "./components/AIBot";
 
+import { useTheme } from "./hooks/useTheme";
+
 function App() {
+  const { tokens: t } = useTheme();
+
   return (
     <BrowserRouter>
-      <div className="min-h-screen pb-16">
+      <div className={`min-h-screen w-full ${t.bg} ${t.text} transition-colors duration-200`}>
         <Routes>
           <Route path="/"          element={<Tracker />} />
           <Route path="/splitter"  element={<Splitter />} />
@@ -24,9 +28,9 @@ function App() {
           <Route path="/goals"     element={<GoalsPage />} />
           <Route path="/ai"        element={<AIInsightsPage />} />
         </Routes>
+        <BottomNav />
+        <AIBot />
       </div>
-      <BottomNav />
-      <AIBot />
     </BrowserRouter>
   );
 }

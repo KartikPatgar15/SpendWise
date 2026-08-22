@@ -39,105 +39,122 @@ export default function GoalsPage() {
   };
 
   return (
-    <div className={`min-h-screen ${t.bg} ${t.text} px-4 pt-5 pb-28 space-y-5`}>
+    <div className={`min-h-screen ${t.bg} ${t.text} px-4 sm:px-6 lg:px-8 pt-6 pb-28 max-w-6xl mx-auto w-full space-y-6 animate-fade-slide-up transition-colors`}>
 
       {/* Header */}
-      <div className="flex items-center justify-between animate-fade-slide-up">
-        <div>
-          <h1 className={`text-2xl font-extrabold tracking-tight ${t.text}`}>Savings Goals</h1>
-          <p className={`text-xs mt-0.5 ${t.muted}`}>Set targets and track your progress</p>
+      <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-lg shadow-md shadow-emerald-500/20">
+            🎯
+          </div>
+          <div>
+            <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${t.text}`}>Savings Goals</h1>
+            <p className={`text-xs font-medium ${t.muted}`}>Set targets and monitor your progress</p>
+          </div>
         </div>
         <button onClick={() => setShowForm((v) => !v)}
-          className={`${t.btn.primary} px-4 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all`}>
-          {showForm ? "Cancel" : "+ Goal"}
+          className={`${t.btn.primary} px-3.5 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition-all shadow-xs`}>
+          {showForm ? "✕ Cancel" : "+ New Goal"}
         </button>
       </div>
 
       {/* Add form */}
       {showForm && (
-        <div className={`${t.card} ${t.border} border rounded-2xl p-4 space-y-3 animate-fade-slide-up`}>
-          <h2 className={`text-sm font-bold ${t.text}`}>New Savings Goal</h2>
+        <div className={`${t.card} ${t.border} border rounded-2xl p-5 sm:p-6 space-y-4 shadow-xs max-w-2xl mx-auto animate-fade-slide-up`}>
+          <div className="flex items-center justify-between">
+            <h2 className={`text-xs font-extrabold uppercase tracking-wider ${t.text}`}>Create New Goal</h2>
+            <span className="text-[11px] font-semibold text-emerald-500">Target</span>
+          </div>
 
-          <div className="space-y-1.5">
-            <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Goal Name *</label>
-            <input type="text" placeholder="e.g. New Laptop, Emergency Fund…" value={form.name}
+          <div className="space-y-1">
+            <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Goal Name *</label>
+            <input type="text" placeholder="e.g. New Laptop, Emergency Fund, Vacation…" value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })} className={fieldClass} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Target Amount (₹) *</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Target Amount (₹) *</label>
               <input type="number" placeholder="0.00" value={form.targetAmount}
                 onChange={(e) => setForm({ ...form, targetAmount: e.target.value })} className={fieldClass} />
             </div>
-            <div className="space-y-1.5">
-              <label className={`text-xs font-semibold uppercase tracking-wider ${t.muted}`}>Target Date</label>
+            <div className="space-y-1">
+              <label className={`text-[11px] font-bold uppercase tracking-wider ${t.muted}`}>Target Date</label>
               <input type="date" value={form.targetDate}
                 onChange={(e) => setForm({ ...form, targetDate: e.target.value })} className={fieldClass} />
             </div>
           </div>
 
           <button onClick={handleSave} disabled={saving}
-            className={`${t.btn.primary} w-full py-3 rounded-xl text-sm font-bold active:scale-95 transition-all ${saving ? "opacity-60" : ""}`}>
+            className={`${t.btn.primary} w-full py-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-sm ${saving ? "opacity-60" : ""}`}>
             Create Goal
           </button>
         </div>
       )}
 
-      {loading && <div className={`text-center py-12 ${t.muted}`}>Loading…</div>}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className={`text-xs font-bold uppercase tracking-wider ${t.muted}`}>Loading goals…</p>
+        </div>
+      )}
 
       {!loading && goals.length === 0 && (
         <div className={`text-center py-16 ${t.muted} animate-fade-in`}>
-          <p className="text-4xl mb-3">🎯</p>
-          <p className="text-sm font-medium">No goals yet</p>
-          <p className="text-xs mt-1">Create a savings goal to get started</p>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-2xl">🎯</div>
+          <p className="text-sm font-bold">No savings goals yet</p>
+          <p className="text-xs mt-0.5 opacity-75">Tap "+ New Goal" above to start building your savings</p>
         </div>
       )}
 
       {/* Goals list */}
       {goals.length > 0 && (
-        <div className="space-y-3 animate-fade-slide-up-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-slide-up-1">
           {goals.map((g) => {
             const pct       = Math.min((g.savedAmount / g.targetAmount) * 100, 100);
             const remaining = g.targetAmount - g.savedAmount;
             const isContributing = contributeId === g.id;
 
             return (
-              <div key={g.id} className={`${t.card} ${t.border} border rounded-2xl p-4 shadow-sm space-y-3`}>
+              <div key={g.id} className={`${t.card} ${t.border} border rounded-2xl p-4 sm:p-5 shadow-xs transition-all duration-200 hover:shadow-md flex flex-col justify-between space-y-4`}>
                 {/* Goal header */}
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className={`text-sm font-bold ${t.text}`}>{g.name}</p>
-                    {g.targetDate && <p className={`text-xs mt-0.5 ${t.muted}`}>By {g.targetDate}</p>}
+                    <p className={`text-sm sm:text-base font-extrabold ${t.text}`}>{g.name}</p>
+                    {g.targetDate && (
+                      <p className={`text-[11px] font-medium mt-0.5 ${t.muted}`}>
+                        Target: {new Date(g.targetDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    )}
                   </div>
                   <button onClick={() => deleteGoal(g.id)}
-                    className={`text-xs px-2.5 py-1 rounded-lg font-semibold active:scale-95 transition-all ${t.btn.secondary}`}>
+                    className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold opacity-60 hover:opacity-100 hover:text-rose-500 active:scale-90 transition-all ${t.btn.secondary}`}>
                     ✕
                   </button>
                 </div>
 
                 {/* Progress bar */}
-                <div>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className={t.muted}>Saved: {formatRupees(g.savedAmount)}</span>
-                    <span className={`font-bold ${t.text}`}>{pct.toFixed(0)}%</span>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs tabular-nums">
+                    <span className={`font-semibold ${t.muted}`}>Saved: <strong className="text-emerald-500 font-extrabold">{formatRupees(g.savedAmount)}</strong></span>
+                    <span className={`font-black ${t.text}`}>{pct.toFixed(0)}%</span>
                   </div>
-                  <div className="h-2.5 rounded-full overflow-hidden bg-current/10">
-                    <div className="h-full rounded-full animate-grow-width bg-emerald-500"
+                  <div className="h-2 rounded-full overflow-hidden bg-black/10 dark:bg-white/10 p-0.5">
+                    <div className="h-full rounded-full animate-grow-width bg-emerald-500 transition-all duration-500"
                       style={{ width: `${pct}%` }} />
                   </div>
-                  <div className="flex justify-between text-xs mt-1.5">
-                    <span className={t.muted}>{formatRupees(remaining)} to go</span>
-                    <span className={`font-semibold ${t.text}`}>Target: {formatRupees(g.targetAmount)}</span>
+                  <div className="flex justify-between text-xs mt-1 tabular-nums">
+                    <span className={`font-medium ${t.muted}`}>{formatRupees(remaining)} to go</span>
+                    <span className={`font-bold ${t.text}`}>Target: {formatRupees(g.targetAmount)}</span>
                   </div>
                 </div>
 
                 {/* Contribute */}
                 {isContributing ? (
-                  <div className="flex gap-2">
-                    <input type="number" placeholder="Amount to add…" value={contributeAmt}
+                  <div className="flex gap-2 pt-2 border-t border-black/5 dark:border-white/5">
+                    <input type="number" placeholder="Amount to contribute…" value={contributeAmt}
                       onChange={(e) => setContributeAmt(e.target.value)}
-                      className={`${fieldClass} py-2`} />
+                      className={`${fieldClass} py-2 text-xs`} />
                     <button onClick={() => handleContribute(g.id)}
                       className={`${t.btn.success} px-4 py-2 rounded-xl text-xs font-bold shrink-0 active:scale-95 transition-all`}>
                       Add
@@ -149,8 +166,8 @@ export default function GoalsPage() {
                   </div>
                 ) : (
                   <button onClick={() => { setContributeId(g.id); setContributeAmt(""); }}
-                    className={`${t.btn.success} w-full py-2.5 rounded-xl text-xs font-bold active:scale-95 transition-all`}>
-                    + Add Money
+                    className={`${t.btn.success} w-full py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-98 transition-all shadow-2xs`}>
+                    + Add Funds
                   </button>
                 )}
               </div>

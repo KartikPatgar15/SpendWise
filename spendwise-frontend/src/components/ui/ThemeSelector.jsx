@@ -4,30 +4,41 @@
 
 export default function ThemeSelector({ theme, setTheme }) {
   const options = [
-    { value: "light", label: "☀️", title: "Light" },
-    { value: "dark", label: "🌙", title: "Dark" },
-    { value: "grey", label: "⚫", title: "Grey" },
+    { value: "light", label: "☀️", title: "Light mode" },
+    { value: "dark", label: "🌙", title: "Dark mode" },
+    { value: "grey", label: "⚫", title: "Monochrome grey" },
   ];
 
   return (
-    <div className="flex gap-1" role="group" aria-label="Choose theme">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => setTheme(opt.value)}
-          title={opt.title}
-          aria-pressed={theme === opt.value}
-          className={`
-            px-3 py-1.5 rounded-lg text-sm font-medium transition-all
-            ${theme === opt.value
-              ? "ring-2 ring-blue-500 bg-blue-500/20"
-              : "opacity-60 hover:opacity-100"
-            }
-          `}
-        >
-          {opt.label}
-        </button>
-      ))}
+    <div
+      className="inline-flex items-center p-1 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md"
+      role="group"
+      aria-label="Choose theme"
+    >
+      {options.map((opt) => {
+        const isActive = theme === opt.value;
+        return (
+          <button
+            key={opt.value}
+            onClick={() => setTheme(opt.value)}
+            title={opt.title}
+            aria-pressed={isActive}
+            className={`
+              px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center
+              ${isActive
+                ? theme === "dark"
+                  ? "bg-[#17242D] text-[#22D3EE] border border-[#22D3EE]/40 shadow-xs scale-105"
+                  : theme === "grey"
+                  ? "bg-zinc-800 text-zinc-100 shadow-xs scale-105"
+                  : "bg-white text-[#2F3E46] shadow-xs scale-105"
+                : "opacity-60 hover:opacity-100 hover:scale-102"
+              }
+            `}
+          >
+            <span className="text-sm leading-none" aria-hidden="true">{opt.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

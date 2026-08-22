@@ -3,14 +3,14 @@
 // Connects to useDateRange() hook.
 
 export default function DateRangePicker({ from, to, setFrom, setTo, onClear, tokens }) {
-  const inputClass = `border rounded-lg px-3 py-1.5 text-sm w-full ${
-    tokens?.input || "border-gray-300 bg-white text-gray-900"
+  const inputClass = `border rounded-xl px-3 py-2 text-xs font-medium w-full focus:outline-none transition-all duration-150 ${
+    tokens?.input || "border-slate-300 bg-white text-slate-900"
   }`;
 
   return (
-    <div className="flex flex-wrap gap-2 items-end">
-      <div className="flex flex-col gap-1">
-        <label className={`text-xs font-medium ${tokens?.muted || "text-gray-500"}`}>
+    <div className="flex flex-wrap gap-2.5 items-end">
+      <div className="flex-1 min-w-[130px] flex flex-col gap-1">
+        <label className={`text-[11px] font-bold uppercase tracking-wider ${tokens?.muted || "text-slate-400"}`}>
           From
         </label>
         <input
@@ -22,8 +22,8 @@ export default function DateRangePicker({ from, to, setFrom, setTo, onClear, tok
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className={`text-xs font-medium ${tokens?.muted || "text-gray-500"}`}>
+      <div className="flex-1 min-w-[130px] flex flex-col gap-1">
+        <label className={`text-[11px] font-bold uppercase tracking-wider ${tokens?.muted || "text-slate-400"}`}>
           To
         </label>
         <input
@@ -38,11 +38,11 @@ export default function DateRangePicker({ from, to, setFrom, setTo, onClear, tok
       {(from || to) && (
         <button
           onClick={onClear}
-          className={`text-sm px-3 py-1.5 rounded-lg ${
+          className={`text-xs font-bold px-3 py-2 rounded-xl transition-all duration-150 active:scale-95 ${
             tokens?.btn?.ghost || "text-blue-600 hover:text-blue-700"
           }`}
         >
-          Clear
+          ✕ Clear
         </button>
       )}
     </div>
