@@ -4,48 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="396f5a6c-dc09-4376-bc19-87dc8d39ff75" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/AIBot.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/AIBot.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/BottomNav.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/BottomNav.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/CategoryPieChart.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/CategoryPieChart.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/MonthlyTrendChart.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/MonthlyTrendChart.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/WeeklyTrendChart.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/charts/WeeklyTrendChart.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/DashboardView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/DashboardView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/HistoryView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/HistoryView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/MonthlyView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/MonthlyView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/WeeklyView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/expense/WeeklyView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/ColorPicker.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/ColorPicker.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/NoteCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/NoteCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/NoteEditor.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/NoteEditor.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/NotesHome.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/notes/NotesHome.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/EventHome.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/EventHome.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ExpenseForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ExpenseForm.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ExpenseList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ExpenseList.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/MatrixView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/MatrixView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ParticipantForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ParticipantForm.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ReportTabs.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/ReportTabs.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/SettlementView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/SettlementView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/SummaryView.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/splitExpense/SummaryView.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/BudgetProgressBar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/BudgetProgressBar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/DateRangePicker.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/DateRangePicker.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/DisplayModeSelector.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/DisplayModeSelector.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/EmptyState.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/EmptyState.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/StatCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/StatCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/ThemeSelector.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/components/ui/ThemeSelector.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/config/themeConfig.js" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/config/themeConfig.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useTheme.js" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/hooks/useTheme.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/AIInsightsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/AIInsightsPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/AnalyticsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/AnalyticsPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/GoalsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/GoalsPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/Notes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/Notes.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/RecurringPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/RecurringPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/Splitter.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/Splitter.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spendwise-frontend/src/pages/Tracker.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/spendwise-frontend/src/pages/Tracker.jsx" afterDir="false" />
-    </list>
+    <list default="true" id="396f5a6c-dc09-4376-bc19-87dc8d39ff75" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
