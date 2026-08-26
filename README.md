@@ -107,3 +107,5 @@ repository/BudgetRepository.java
 Phase 3 (Recurring + Goals) and Phase 4 (AI) are documented in ARCHITECTURE.md.
 No frontend stubs are needed for these yet — the hook + service + component pattern
 is identical to Phase 2 and can be added when the backend is ready.
+
+will update soon
